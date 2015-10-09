@@ -9,7 +9,7 @@
 bower install laxar-react-adapter
 ```
 
-This will automatically install React itself.
+This will automatically install React if not already installed.
 
 Add the React adapter to your bootstrapping modules, by editing the `init.js` of your LaxarJS project.
 You will need to adjust the RequireJS imports, as well as the second argument to `ax.bootstrap`: 
@@ -106,4 +106,38 @@ export default {
       return { onDomAvailable: render };
    }
 };
+```
+
+Also, you can delete the `default.theme/my-counter-widget.html` since for React, we do not use HTML template loading mechanism.
+
+
+### Testing with LaxarJS Mocks
+
+Starting with [laxar-mocks](https://github.com/LaxarJS/laxar-mocks) v0.5.0, you can pass custom adapters when creating the testbed-setup function.
+Simply write your specs like this:
+
+
+```js
+define( [
+   'json!../widget.json',
+   'laxar-react-adapter',
+   'laxar-mocks'
+], function( descriptor, axReactAdapter, axMocks ) {
+   'use strict';
+
+   describe( 'The my-counter-widget', function() {
+
+      beforeEach( axMocks.createSetupForWidget( descriptor, {
+         // register the adapter:
+         adapter: axReactAdapter,
+         // with React JSX, usually we will not use an HTML template:
+         knownMissingResources: [ 'default.theme/my-counter-widget.html' ]
+      } ) );
+
+      // ... tests ...
+
+      afterEach( axMocks.tearDown );
+
+   } );
+} );
 ```

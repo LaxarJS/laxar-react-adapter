@@ -98,7 +98,6 @@ define( [ 'react' ], function( React ) {
 
          return {
             get: function( name ) {
-               console.log( 'context: ', context.widget.id, ' name: ', name ); // :TODO: Delete
                if( arguments.length === 0 ) {
                   return map;
                }
