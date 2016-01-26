@@ -4,8 +4,8 @@
    "description": "Helps to develop React-based LaxarJS widgets and controls",
    "license": "MIT",
    "dependencies": {
-      "laxar": "^1.1.0-alpha.10",
-      "react": "~0.13.3"
+      "laxar": "^1.1.0",
+      "react": "~0.14.7"
    },
    "devDependencies": {
    }

@@ -12,11 +12,20 @@ bower install laxar-react-adapter
 This will automatically install React if not already installed.
 
 Add the React adapter to your bootstrapping modules, by editing the `init.js` of your LaxarJS project.
-You will need to adjust the RequireJS imports, as well as the second argument to `ax.bootstrap`: 
+You will need to adjust your RequireJS configuration:
+
+```js
+'laxar-react-adapter': '../var/laxar-react-adapter/laxar-react-adapter',
+'react': 'react/react',
+'react-dom': 'react/react-dom',
+```
+
+The adapter relies on `react-dom`, and your widgets will need to find `react`.
+Now you can pass the adapter through the second argument to `ax.bootstrap`:
 
 ```js
 require( [
-   /* existing dependencies ... */, 
+   /* existing dependencies ... */,
    'laxar-react-adapter'
 ], function( /* laxar, applicationModules, resources, ... */, reactAdapter ) {
    // ... setup file listings etc. ...
@@ -31,6 +40,7 @@ If you already have other custom adapters in your project, simply add the React 
 
 With the adapter in place, you can now write widgets and controls using React.
 The integration technology _"react"_ is very similar to _"plain"_.
+Continue reading for details.
 
 
 ### Creating a React Widget
