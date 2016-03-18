@@ -2,6 +2,9 @@
 
 ## Last Changes
 
+
+## v0.4.0
+
 - [#4](https://github.com/LaxarJS/laxar-react-adapter/issues/4): documentation: using "react" as integration technology with the LaxarJS generator
 - [#3](https://github.com/LaxarJS/laxar-react-adapter/issues/3): documentation: fixed path for require.js
 
