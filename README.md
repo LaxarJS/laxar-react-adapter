@@ -15,7 +15,7 @@ Add the React adapter to your bootstrapping modules, by editing the `init.js` of
 You will need to adjust your RequireJS configuration:
 
 ```js
-'laxar-react-adapter': '../var/laxar-react-adapter/laxar-react-adapter',
+'laxar-react-adapter': 'laxar-react-adapter/laxar-react-adapter',
 'react': 'react/react',
 'react-dom': 'react/react-dom',
 ```
@@ -51,7 +51,7 @@ You can use the LaxarJS generator for Yeoman to create a _plain_ widget, then tu
 
 2. The widget module (e.g. `my-widget.js`), should export an object with three properties (`name`, `injections`, `create`), just like a plain widget would.
 The `create` method should setup the widget controller and subscribe to events.
-It must return an object with a function property `onDomAttached` which is called by the React adapter as soon as the widget DOM has been instantiated and attached to teh page DOM.
+It must return an object with a function property `onDomAttached` which is called by the React adapter as soon as the widget DOM has been instantiated and attached to the page DOM.
 
 3. To render something into its dom node, the widget must request the injection `axReactRender` which is provided by the react adapter.
 This injected function is a no-op as long as the widget is invisible (e.g. in a background-tab, or within a closed popup).
@@ -89,7 +89,7 @@ define( [ 'react' ], function( React ) {
 A LaxarJS control allows you to encapsulates one or more React components with associated CSS styles, that can be overwritten by themes.
 
 React controls are implemented as regular AMD-modules, just like *plain* controls.
-Just make sure to specify `"react"` as the integration technology in your `control.json`, and to export all components that you wish to make available to widgets.  
+Just make sure to specify `"react"` as the integration technology in your `control.json`, and to export all components that you wish to make available to widgets.
 
 
 ### Using JSX

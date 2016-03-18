@@ -2,6 +2,8 @@
 
 ## Last Changes
 
+- [#3](https://github.com/LaxarJS/laxar-react-adapter/issues/3): documentation: fixed path for require.js
+
 
 ## v0.3.0
 
