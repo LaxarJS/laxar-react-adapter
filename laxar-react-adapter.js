@@ -3,63 +3,62 @@
  * Released under the MIT license.
  * http://laxarjs.org/license
  */
-define( [ 'react-dom' ], function( ReactDom ) {
-   'use strict';
 
-   var widgetModules = {};
+import * as ReactDom from 'react-dom';
 
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+export const technology = 'react';
 
-   /**
-    * Implements the LaxarJS adapter API:
-    * https://github.com/LaxarJS/laxar/blob/master/docs/manuals/adapters.md
-    */
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Implements the LaxarJS adapter API:
+ * https://github.com/LaxarJS/laxar/blob/master/docs/manuals/adapters.md
+ */
+export function bootstrap( modules, laxarServices ) {
+
+   const widgetModules = {};
+
+   modules
+      .map( _ => _.default || _ )
+      .filter( function ( module ) { return module.name; } )
+      .forEach( function( module ) {
+         widgetModules[ module.name ] = module;
+      } );
+
    return {
-      technology: 'react',
-      bootstrap: bootstrap,
+      technology: technology,
       create: create,
       applyViewChanges: function() {}
    };
 
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-   function bootstrap( modules ) {
-      modules
-         .filter( function ( module ) { return module.name; } )
-         .forEach( function( module ) {
-            widgetModules[ module.name ] = module;
-         } );
-   }
-
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+   ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    function create( environment, services ) {
 
-      var isAttached = true;
-      var exports = {
+      const widgetName = environment.specification.name;
+      const context = environment.context;
+      let isAttached = true;
+      let controller = null;
+      return {
          createController: createController,
          domAttachTo: domAttachTo,
          domDetach: domDetach,
          destroy: function() {}
       };
 
-      var widgetName = environment.specification.name;
-      var context = environment.context;
-      var controller = null;
-
-      ////////////////////////////////////////////////////////////////////////////////////////////////////////
+      /////////////////////////////////////////////////////////////////////////////////////////////////////
 
       function createController( config ) {
-         var widgetModule = widgetModules[ widgetName ];
-         var injector = createInjector();
-         var injections = ( widgetModule.injections || [] ).map( function( injection ) {
+         const widgetModule = widgetModules[ widgetName ];
+         const injector = createInjector();
+         const injections = ( widgetModule.injections || [] ).map( function( injection ) {
             return injector.get( injection );
          } );
          config.onBeforeControllerCreation( environment, injector.get() );
          controller = widgetModule.create.apply( widgetModule, injections );
       }
 
-      ////////////////////////////////////////////////////////////////////////////////////////////////////////
+      /////////////////////////////////////////////////////////////////////////////////////////////////////
 
       function domAttachTo( areaElement ) {
          isAttached = true;
@@ -67,20 +66,22 @@ define( [ 'react-dom' ], function( ReactDom ) {
          controller.onDomAvailable();
       }
 
-      ////////////////////////////////////////////////////////////////////////////////////////////////////////
+      /////////////////////////////////////////////////////////////////////////////////////////////////////
 
       function domDetach() {
          isAttached = false;
-         var parent = environment.anchorElement.parentNode;
+         const parent = environment.anchorElement.parentNode;
          if( parent ) {
             parent.removeChild( environment.anchorElement );
          }
       }
 
-      ////////////////////////////////////////////////////////////////////////////////////////////////////////
+      /////////////////////////////////////////////////////////////////////////////////////////////////////
 
       function createInjector() {
-         var map = {
+         const map = {
+            axLog: laxarServices.log,
+            axConfiguration: laxarServices.configuration,
             axContext: context,
             axEventBus: context.eventBus,
             axFeatures: context.features || {},
@@ -94,7 +95,7 @@ define( [ 'react-dom' ], function( ReactDom ) {
             }
          };
 
-         /////////////////////////////////////////////////////////////////////////////////////////////////////
+         //////////////////////////////////////////////////////////////////////////////////////////////////
 
          return {
             get: function( name ) {
@@ -115,10 +116,6 @@ define( [ 'react-dom' ], function( ReactDom ) {
          };
       }
 
-      ////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-      return exports;
-
    }
 
-} );
+}

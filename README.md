@@ -1,18 +1,27 @@
 # LaxarJS React Adapter
 
-> Write LaxarJS widgets and controls in React
+> Write LaxarJS widgets and controls using React
 
 
 ## Installation
 
+Note: these instructions are for LaxarJS v2, which is still in early alpha stage.
+Use laxar-react-adapter v0.x for projects using LaxarJS v1.
+
 ```console
-bower install laxar-react-adapter
+bower install --save laxar-react-adapter
+```
+
+or
+
+```console
+npm install --save laxar-react-adapter
 ```
 
 This will automatically install React if not already installed.
+Load the react adapter module (`laxar-react-adapter.js`) into your project and pass it to `laxar.bootstrap`.
 
-Add the React adapter to your bootstrapping modules, by editing the `init.js` and the `require_config.js` of your LaxarJS project.
-You will need to adjust the `paths` object in your RequireJS configuration:
+Make sure to have the following mappings in your module loader configuration (e.g. `resolve.alias` for webpack, `path` for RequireJS):
 
 ```js
 'laxar-react-adapter': 'laxar-react-adapter/laxar-react-adapter',
@@ -20,26 +29,21 @@ You will need to adjust the `paths` object in your RequireJS configuration:
 'react-dom': 'react/react-dom',
 ```
 
-The adapter relies on `react-dom`, and your widgets will need to find `react`.
-Now you can pass the adapter through the second argument to `ax.bootstrap`:
+The adapter itself relies on `react-dom`, and your widgets will need to find `react`.
+Now you can pass the adapter module using the second argument to `laxar.bootstrap`:
 
 ```js
-require( [
-   /* existing dependencies ... */,
-   'laxar-react-adapter'
-], function( /* laxar, applicationModules, resources, ... */, reactAdapter ) {
-   // ... setup file listings etc. ...
-   ax.bootstrap( /* applicationModules */, [ reactAdapter ] );
-} );
+import { bootstrap } from 'laxar';
+bootstrap( /* applicationModules */, [ reactAdapter ] );
 ```
 
-If you already have other custom adapters in your project, simply add the React adapter to your current list.
+If you already have other custom adapters in your project, simply add the React adapter to the existing list.
 
 
 ## Usage
 
 With the adapter in place, you can now write widgets and controls using React.
-The Laxarjs generator can create simple widgets and controls with the integration technology _"react"_.
+The LaxarJS Yeoman generator can create simple widgets and controls with the integration technology _"react"_.
 Continue reading for details.
 
 
