@@ -2,6 +2,9 @@
 
 ## Last Changes
 
+- [#6](https://github.com/LaxarJS/laxar-react-adapter/issues/6): made react adapter module stateless (LaxarJS v2)
+   + **BREAKING CHANGE:** see ticket for details
+
 
 ## v0.4.0
 
