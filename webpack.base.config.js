@@ -1,10 +1,10 @@
 /* eslint-env node */
 
 module.exports = {
-   entry: {
+   entry:  {
+      'laxar-react-adapter': './laxar-react-adapter.js'
    },
-   resolve: {
-   },
+   resolve: {},
    module: {
       loaders: [
          {

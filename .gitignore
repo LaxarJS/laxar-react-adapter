@@ -1,8 +1,9 @@
 /.idea
 /.grunt
 /node_modules
+/karma-output
+/spec-output
 /bower_components
-/_SpecRunner.html
 /dist
 junit.xml
 npm-debug.log
