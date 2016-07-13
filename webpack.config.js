@@ -31,7 +31,7 @@ function distConfig() {
 
    config.externals = {
       'laxar': 'laxar',
-      'react-dom': 'react-dom',
+      'react-dom': 'react-dom'
    };
 
    config.plugins = [

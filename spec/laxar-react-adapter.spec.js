@@ -5,23 +5,23 @@ import * as widgetData from './widget_data';
 
 describe( 'A react widget adapter module', () => {
 
-   it( 'advertises "react" as its technology', function() {
+   it( 'advertises "react" as its technology', () => {
       expect( technology ).toEqual( 'react' );
    } );
 
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-   it( 'provides a `bootstrap` method', function() {
+   it( 'provides a `bootstrap` method', () => {
       expect( bootstrap ).toEqual( jasmine.any( Function ) );
    } );
 
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-   describe( 'when bootstrapped with services and modules', function() {
+   describe( 'when bootstrapped with services and modules', () => {
 
       let factory;
 
-      beforeEach( function() {
+      beforeEach( () => {
          factory = bootstrap( [], {
             configuration: createConfigurationMock(),
             log: createLogMock()
@@ -30,25 +30,25 @@ describe( 'A react widget adapter module', () => {
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-      it( 'produces a factory-object which is tagged with the technology "react"', function() {
+      it( 'produces a factory-object which is tagged with the technology "react"', () => {
          expect( factory.technology ).toEqual( 'react' );
       } );
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-      it( 'produces a factory-object with a create-method', function() {
+      it( 'produces a factory-object with a create-method', () => {
          expect( factory.create ).toEqual( jasmine.any( Function ) );
       } );
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-      it( 'produces a factory-object with an applyViewChanges method', function() {
+      it( 'produces a factory-object with an applyViewChanges method', () => {
          expect( factory.applyViewChanges ).toEqual( jasmine.any( Function ) );
       } );
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-      it( 'allows to create a widget adapter', function() {
+      it( 'allows to create a widget adapter', () => {
          expect( factory.create( {
             specification: widgetData.specification,
             context: {}
@@ -67,13 +67,13 @@ describe( 'A react widget adapter module', () => {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-describe( 'a react widget adapter', function() {
+describe( 'a react widget adapter', () => {
 
    let adapter;
    let fakeModule;
    let beforeCreationSpy;
 
-   beforeEach( function() {
+   beforeEach( () => {
       beforeCreationSpy = jasmine.createSpy( 'onBeforeControllerCreation' );
       fakeModule = {
          create: jasmine.createSpy( 'some-widget.create' ),
@@ -94,38 +94,38 @@ describe( 'a react widget adapter', function() {
       }, {} );
    } );
 
-   describe( 'asked to instantiate a widget controller', function () {
+   describe( 'asked to instantiate a widget controller', () => {
 
-      beforeEach( function() {
+      beforeEach( () => {
          adapter.createController( { onBeforeControllerCreation: beforeCreationSpy } );
       } );
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-      it( 'creates that controller', function() {
+      it( 'creates that controller', () => {
          expect( fakeModule.create ).toHaveBeenCalled();
       } );
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-      it( 'calls the onBeforeControllerCreation spy', function() {
+      it( 'calls the onBeforeControllerCreation spy', () => {
          expect( beforeCreationSpy ).toHaveBeenCalled();
       } );
 
    } );
 
-   //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-   describe( 'asked to instantiate a widget controller with injections', function () {
+   describe( 'asked to instantiate a widget controller with injections', () => {
 
-      beforeEach( function() {
+      beforeEach( () => {
          fakeModule.injections = [ 'axContext', 'axReactRender', 'axFeatures' ];
          adapter.createController( { onBeforeControllerCreation: beforeCreationSpy } );
       } );
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-      it( 'creates that controller with injections', function() {
+      it( 'creates that controller with injections', () => {
          expect( fakeModule.create ).toHaveBeenCalledWith(
             { eventBus: jasmine.any( Object ), features: jasmine.any( Object ) },
             jasmine.any( Function ),

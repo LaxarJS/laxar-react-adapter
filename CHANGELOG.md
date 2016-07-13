@@ -2,6 +2,7 @@
 
 ## Last Changes
 
+- [#8](https://github.com/LaxarJS/laxar-react-adapter/issues/8): applied restricted eslint rules
 - [#7](https://github.com/LaxarJS/laxar-react-adapter/issues/6): added dist-target for UMD-library
 - [#6](https://github.com/LaxarJS/laxar-react-adapter/issues/6): made react adapter module stateless (LaxarJS v2)
    + **BREAKING CHANGE:** see ticket for details

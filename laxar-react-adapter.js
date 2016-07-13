@@ -13,6 +13,19 @@ export const technology = 'react';
 /**
  * Implements the LaxarJS adapter API:
  * https://github.com/LaxarJS/laxar/blob/master/docs/manuals/adapters.md
+ *
+ * @param {Array} modules
+ *   The widget and control modules matching this adapter's technology.
+ *
+ * @param {Object} laxarServices
+ *   adapter-visible laxarjs services
+ *
+ * @return {{
+ *   technology: String,
+ *   create: Function,
+ *   applyViewChanges: Function
+ * }}
+ *   The instantiated adapter factory.
  */
 export function bootstrap( modules, laxarServices ) {
 
@@ -20,15 +33,15 @@ export function bootstrap( modules, laxarServices ) {
 
    modules
       .map( _ => _.default || _ )
-      .filter( function ( module ) { return module.name; } )
-      .forEach( function( module ) {
+      .filter( _ => !!_.name )
+      .forEach( module => {
          widgetModules[ module.name ] = module;
       } );
 
    return {
-      technology: technology,
-      create: create,
-      applyViewChanges: function() {}
+      technology,
+      create,
+      applyViewChanges: () => {}
    };
 
    ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -40,10 +53,10 @@ export function bootstrap( modules, laxarServices ) {
       let isAttached = true;
       let controller = null;
       return {
-         createController: createController,
-         domAttachTo: domAttachTo,
-         domDetach: domDetach,
-         destroy: function() {}
+         createController,
+         domAttachTo,
+         domDetach,
+         destroy: () => {}
       };
 
       /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -51,11 +64,10 @@ export function bootstrap( modules, laxarServices ) {
       function createController( config ) {
          const widgetModule = widgetModules[ widgetName ];
          const injector = createInjector();
-         const injections = ( widgetModule.injections || [] ).map( function( injection ) {
-            return injector.get( injection );
-         } );
+         const injections = ( widgetModule.injections || [] )
+            .map( injection => injector.get( injection ) );
          config.onBeforeControllerCreation( environment, injector.get() );
-         controller = widgetModule.create.apply( widgetModule, injections );
+         controller = widgetModule.create( ...injections );
       }
 
       /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -85,7 +97,7 @@ export function bootstrap( modules, laxarServices ) {
             axContext: context,
             axEventBus: context.eventBus,
             axFeatures: context.features || {},
-            axReactRender: function( componentInstance ) {
+            axReactRender: componentInstance => {
                if( isAttached ) {
                   ReactDom.render(
                      componentInstance,
@@ -98,8 +110,8 @@ export function bootstrap( modules, laxarServices ) {
          //////////////////////////////////////////////////////////////////////////////////////////////////
 
          return {
-            get: function( name ) {
-               if( arguments.length === 0 ) {
+            get: name => {
+               if( !name ) {
                   return map;
                }
 
@@ -111,7 +123,7 @@ export function bootstrap( modules, laxarServices ) {
                   return services[ name ];
                }
 
-               throw new Error( 'laxar-react-adapter: Unknown dependency: "' + name + '"' );
+               throw new Error( `laxar-react-adapter: Unknown injection: "${name}"` );
             }
          };
       }
