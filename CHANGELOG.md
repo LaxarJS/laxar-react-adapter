@@ -2,6 +2,8 @@
 
 ## Last Changes
 
+- [#5](https://github.com/LaxarJS/laxar-react-adapter/issues/5): services: adopted to new widget services
+   + **BREAKING CHANGE:** see ticket for details
 - [#9](https://github.com/LaxarJS/laxar-react-adapter/issues/9): eslint: use shared configuration
 - [#8](https://github.com/LaxarJS/laxar-react-adapter/issues/8): applied restricted eslint rules
 - [#7](https://github.com/LaxarJS/laxar-react-adapter/issues/6): added dist-target for UMD-library

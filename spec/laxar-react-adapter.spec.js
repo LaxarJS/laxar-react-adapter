@@ -1,3 +1,8 @@
+/**
+ * Copyright 2016 aixigo AG
+ * Released under the MIT license.
+ * http://laxarjs.org/license
+ */
 import { bootstrap, technology } from '../laxar-react-adapter';
 import { create as createConfigurationMock } from 'laxar/lib/testing/configuration_mock';
 import { create as createLogMock } from 'laxar/lib/testing/log_mock';
@@ -84,12 +89,17 @@ describe( 'a react widget adapter', () => {
          configuration: createConfigurationMock(),
          log: createLogMock()
       } );
-
+      const context = {
+         eventBus: { fake: 'I am a mock event bus!' },
+         features: widgetData.configuration.features
+      };
       adapter = factory.create( {
          specification: widgetData.specification,
-         context: {
-            eventBus: { fake: 'I am a mock event bus!' },
-            features: widgetData.configuration.features
+         context,
+         services: {
+            axContext: context,
+            axEventBus: context.eventBus,
+            axFeatures: context.features
          }
       }, {} );
    } );

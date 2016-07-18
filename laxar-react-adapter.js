@@ -1,9 +1,8 @@
 /**
- * Copyright 2015 aixigo AG
+ * Copyright 2016 aixigo AG
  * Released under the MIT license.
  * http://laxarjs.org/license
  */
-
 import * as ReactDom from 'react-dom';
 
 export const technology = 'react';
@@ -17,9 +16,6 @@ export const technology = 'react';
  * @param {Array} modules
  *   The widget and control modules matching this adapter's technology.
  *
- * @param {Object} laxarServices
- *   adapter-visible laxarjs services
- *
  * @return {{
  *   technology: String,
  *   create: Function,
@@ -27,7 +23,7 @@ export const technology = 'react';
  * }}
  *   The instantiated adapter factory.
  */
-export function bootstrap( modules, laxarServices ) {
+export function bootstrap( modules ) {
 
    const widgetModules = {};
 
@@ -41,36 +37,45 @@ export function bootstrap( modules, laxarServices ) {
    return {
       technology,
       create,
-      applyViewChanges: () => {}
+      applyViewChanges() {}
    };
 
    ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-   function create( environment, services ) {
+   function create( environment ) {
 
-      const widgetName = environment.specification.name;
-      const context = environment.context;
       let isAttached = true;
       let controller = null;
       return {
          createController,
          domAttachTo,
          domDetach,
-         destroy: () => {}
+         destroy() {}
       };
 
-      /////////////////////////////////////////////////////////////////////////////////////////////////////
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
       function createController( config ) {
-         const widgetModule = widgetModules[ widgetName ];
-         const injector = createInjector();
-         const injections = ( widgetModule.injections || [] )
-            .map( injection => injector.get( injection ) );
-         config.onBeforeControllerCreation( environment, injector.get() );
-         controller = widgetModule.create( ...injections );
+         const module = widgetModules[ environment.specification.name ];
+         const availableInjections = {
+            ...environment.services,
+            axReactRender( componentInstance ) {
+               if( isAttached ) {
+                  ReactDom.render( componentInstance, environment.anchorElement );
+               }
+            }
+         };
+         const injections = ( module.injections || [] ).map( injection => {
+            if( !( injection in availableInjections ) ) {
+               throw new Error( `Trying to inject unknown service "${injection}".` );
+            }
+            return availableInjections[ injection ];
+         } );
+         config.onBeforeControllerCreation( environment, Object.freeze( injections ) );
+         controller = module.create( ...injections );
       }
 
-      /////////////////////////////////////////////////////////////////////////////////////////////////////
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
       function domAttachTo( areaElement ) {
          isAttached = true;
@@ -78,7 +83,7 @@ export function bootstrap( modules, laxarServices ) {
          controller.onDomAvailable();
       }
 
-      /////////////////////////////////////////////////////////////////////////////////////////////////////
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
       function domDetach() {
          isAttached = false;
@@ -86,46 +91,6 @@ export function bootstrap( modules, laxarServices ) {
          if( parent ) {
             parent.removeChild( environment.anchorElement );
          }
-      }
-
-      /////////////////////////////////////////////////////////////////////////////////////////////////////
-
-      function createInjector() {
-         const map = {
-            axLog: laxarServices.log,
-            axConfiguration: laxarServices.configuration,
-            axContext: context,
-            axEventBus: context.eventBus,
-            axFeatures: context.features || {},
-            axReactRender: componentInstance => {
-               if( isAttached ) {
-                  ReactDom.render(
-                     componentInstance,
-                     environment.anchorElement
-                  );
-               }
-            }
-         };
-
-         //////////////////////////////////////////////////////////////////////////////////////////////////
-
-         return {
-            get: name => {
-               if( !name ) {
-                  return map;
-               }
-
-               if( name in map ) {
-                  return map[ name ];
-               }
-
-               if( name in services ) {
-                  return services[ name ];
-               }
-
-               throw new Error( `laxar-react-adapter: Unknown injection: "${name}"` );
-            }
-         };
       }
 
    }
