@@ -2,6 +2,7 @@
 
 ## Last Changes
 
+- [#10](https://github.com/LaxarJS/laxar-react-adapter/issues/10): project: turned framework dependencies into peer-dependencies
 - [#5](https://github.com/LaxarJS/laxar-react-adapter/issues/5): services: adopted to new widget services
    + **BREAKING CHANGE:** see ticket for details
 - [#9](https://github.com/LaxarJS/laxar-react-adapter/issues/9): eslint: use shared configuration

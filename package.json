@@ -14,7 +14,7 @@
     "type": "git",
     "url": "git+https://github.com/LaxarJS/laxar-angular-adapter.git"
   },
-  "dependencies": {
+  "peerDependencies": {
     "laxar": "^2.0.0-alpha.2",
     "react": "^15.2.0",
     "react-dom": "^15.2.0"
@@ -52,6 +52,9 @@
     "karma-phantomjs-launcher": "^1.0.1",
     "karma-sourcemap-loader": "^0.3.7",
     "karma-webpack": "^1.7.0",
+    "laxar": "^2.0.0-alpha.3",
+    "react": "^15.2.0",
+    "react-dom": "^15.2.0",
     "webpack": "^1.13.1",
     "webpack-dev-server": "^1.14.1",
     "webpack-jasmine-html-runner-plugin": "~0.1.0"
