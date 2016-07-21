@@ -56,22 +56,27 @@ export function bootstrap( modules ) {
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
       function createController( config ) {
-         const module = widgetModules[ environment.specification.name ];
-         const availableInjections = {
-            ...environment.services,
+         const { onBeforeControllerCreation } = config;
+         const { anchorElement, services, specification } = environment;
+         const module = widgetModules[ specification.name ];
+         const reactServices = {
             axReactRender( componentInstance ) {
                if( isAttached ) {
-                  ReactDom.render( componentInstance, environment.anchorElement );
+                  ReactDom.render( componentInstance, anchorElement );
                }
             }
          };
+
          const injections = ( module.injections || [] ).map( injection => {
-            if( !( injection in availableInjections ) ) {
-               throw new Error( `Trying to inject unknown service "${injection}".` );
+            const value = reactServices[ injection ] || services[ injection ];
+            if( value === undefined ) {
+               throw new Error(
+                  `Trying to inject unknown service "${injection}" into widget "${specification.name}".`
+               );
             }
-            return availableInjections[ injection ];
+            return value;
          } );
-         config.onBeforeControllerCreation( environment, Object.freeze( injections ) );
+         onBeforeControllerCreation( environment, injections );
          controller = module.create( ...injections );
       }
 

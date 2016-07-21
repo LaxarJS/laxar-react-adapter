@@ -1,6 +1,6 @@
 {
   "name": "laxar-react-adapter",
-  "version": "1.0.0-pre",
+  "version": "2.0.0-pre",
   "description": "Write LaxarJS widgets and controls using React",
   "main": "laxar-angular-adapter.js",
   "scripts": {
@@ -15,7 +15,7 @@
     "url": "git+https://github.com/LaxarJS/laxar-angular-adapter.git"
   },
   "peerDependencies": {
-    "laxar": "^2.0.0-alpha.2",
+    "laxar": "^2.0.0-alpha.4",
     "react": "^15.2.0",
     "react-dom": "^15.2.0"
   },
@@ -52,7 +52,7 @@
     "karma-phantomjs-launcher": "^1.0.1",
     "karma-sourcemap-loader": "^0.3.7",
     "karma-webpack": "^1.7.0",
-    "laxar": "^2.0.0-alpha.3",
+    "laxar": "^2.0.0-alpha.4",
     "react": "^15.2.0",
     "react-dom": "^15.2.0",
     "webpack": "^1.13.1",
