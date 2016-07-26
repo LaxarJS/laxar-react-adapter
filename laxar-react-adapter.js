@@ -16,11 +16,7 @@ export const technology = 'react';
  * @param {Array} modules
  *   The widget and control modules matching this adapter's technology.
  *
- * @return {{
- *   technology: String,
- *   create: Function,
- *   applyViewChanges: Function
- * }}
+ * @return {Object}
  *   The instantiated adapter factory.
  */
 export function bootstrap( modules ) {
@@ -36,8 +32,7 @@ export function bootstrap( modules ) {
 
    return {
       technology,
-      create,
-      applyViewChanges() {}
+      create
    };
 
    ////////////////////////////////////////////////////////////////////////////////////////////////////////

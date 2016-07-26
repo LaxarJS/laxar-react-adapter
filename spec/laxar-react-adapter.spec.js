@@ -47,12 +47,6 @@ describe( 'A react widget adapter module', () => {
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-      it( 'produces a factory-object with an applyViewChanges method', () => {
-         expect( factory.applyViewChanges ).toEqual( jasmine.any( Function ) );
-      } );
-
-      ////////////////////////////////////////////////////////////////////////////////////////////////////////
-
       it( 'allows to create a widget adapter', () => {
          expect( factory.create( {
             specification: widgetData.specification,
