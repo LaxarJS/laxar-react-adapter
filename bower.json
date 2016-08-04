@@ -2,6 +2,7 @@
    "name": "laxar-react-adapter",
    "version": "1.0.0-pre",
    "description": "Write LaxarJS widgets and controls using React",
+   "main": "laxar-react-adapter.js",
    "license": "MIT",
    "dependencies": {
       "laxar": "^2.0.0",

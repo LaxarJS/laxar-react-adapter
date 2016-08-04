@@ -2,6 +2,7 @@
 
 ## Last Changes
 
+- [#13](https://github.com/LaxarJS/laxar-react-adapter/issues/13): fixed bower.json `main` entry
 - [#12](https://github.com/LaxarJS/laxar-react-adapter/issues/12): removed applyViewChanges
 - [#11](https://github.com/LaxarJS/laxar-react-adapter/issues/11): environment: adapted to reduced environment
 - [#10](https://github.com/LaxarJS/laxar-react-adapter/issues/10): project: turned framework dependencies into peer-dependencies
