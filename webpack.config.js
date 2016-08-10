@@ -24,7 +24,7 @@ function distConfig() {
    config.output = {
       path: path.resolve( __dirname ),
       filename: 'dist/laxar-react-adapter.js',
-      library: 'laxar',
+      library: 'laxar-react-adapter',
       libraryTarget: 'umd',
       umdNamedDefine: true
    };

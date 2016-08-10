@@ -2,6 +2,7 @@
 
 ## Last Changes
 
+- [#14](https://github.com/LaxarJS/laxar-react-adapter/issues/14): fixed passing of services to `onBeforeControllerCreation` callback
 - [#13](https://github.com/LaxarJS/laxar-react-adapter/issues/13): fixed bower.json `main` entry
 - [#12](https://github.com/LaxarJS/laxar-react-adapter/issues/12): removed applyViewChanges
 - [#11](https://github.com/LaxarJS/laxar-react-adapter/issues/11): environment: adapted to reduced environment

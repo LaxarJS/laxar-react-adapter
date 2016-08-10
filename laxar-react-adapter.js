@@ -35,7 +35,7 @@ export function bootstrap( modules ) {
       create
    };
 
-   ////////////////////////////////////////////////////////////////////////////////////////////////////////
+   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    function create( environment ) {
 
@@ -62,6 +62,7 @@ export function bootstrap( modules ) {
             }
          };
 
+         const injectionsByName = {};
          const injections = ( module.injections || [] ).map( injection => {
             const value = reactServices[ injection ] || services[ injection ];
             if( value === undefined ) {
@@ -69,9 +70,10 @@ export function bootstrap( modules ) {
                   `Trying to inject unknown service "${injection}" into widget "${specification.name}".`
                );
             }
+            injectionsByName[ injection ] = value;
             return value;
          } );
-         onBeforeControllerCreation( environment, injections );
+         onBeforeControllerCreation( environment, injectionsByName );
          controller = module.create( ...injections );
       }
 
