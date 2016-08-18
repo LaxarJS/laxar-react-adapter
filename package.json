@@ -15,9 +15,9 @@
     "url": "git+https://github.com/LaxarJS/laxar-angular-adapter.git"
   },
   "peerDependencies": {
-    "laxar": "^2.0.0-alpha.4",
-    "react": "^15.2.0",
-    "react-dom": "^15.2.0"
+    "laxar": "^2.0.0-alpha.9",
+    "react": "^15.3.0",
+    "react-dom": "^15.3.0"
   },
   "keywords": [
     "LaxarJS",
@@ -57,6 +57,6 @@
     "react-dom": "^15.2.0",
     "webpack": "^1.13.1",
     "webpack-dev-server": "^1.14.1",
-    "webpack-jasmine-html-runner-plugin": "~0.1.0"
+    "webpack-jasmine-html-runner-plugin": "~0.5.0"
   }
 }

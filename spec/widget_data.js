@@ -3,7 +3,7 @@
  * Released under the MIT license.
  * http://laxarjs.org/license
  */
-export const specification = {
+export const descriptor = {
    name: 'some-widget',
    integration: {
       type: 'widget',
@@ -24,6 +24,10 @@ export const specification = {
          }
       }
    }
+};
+
+export const module = {
+   create() {}
 };
 
 export const configuration = {

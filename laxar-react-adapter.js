@@ -3,60 +3,63 @@
  * Released under the MIT license.
  * http://laxarjs.org/license
  */
+
+/**
+ * Implements the LaxarJS adapter API for the integration technology "react":
+ * https://github.com/LaxarJS/laxar/blob/master/docs/manuals/adapters.md
+ *
+ * @module laxar-react-adapter
+ */
+
 import * as ReactDom from 'react-dom';
+
+const noOp = () => {};
 
 export const technology = 'react';
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/**
- * Implements the LaxarJS adapter API:
- * https://github.com/LaxarJS/laxar/blob/master/docs/manuals/adapters.md
- *
- * @param {Array} modules
- *   The widget and control modules matching this adapter's technology.
- *
- * @return {Object}
- *   The instantiated adapter factory.
- */
-export function bootstrap( modules ) {
+export function bootstrap( { widgets }, { widgetLoader } ) {
 
+   const { adapterErrors } = widgetLoader;
    const widgetModules = {};
-
-   modules
-      .map( _ => _.default || _ )
-      .filter( _ => !!_.name )
-      .forEach( module => {
-         widgetModules[ module.name ] = module;
-      } );
+   const activitySet = {};
+   widgets.forEach( ({ descriptor, module }) => {
+      widgetModules[ descriptor.name ] = module;
+      if( descriptor.integration.type === 'activity' ) {
+         activitySet[ descriptor.name ] = true;
+      }
+   } );
 
    return {
-      technology,
-      create
+      create,
+      technology
    };
 
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-   function create( environment ) {
+   function create( { widgetName, anchorElement, services, onBeforeControllerCreation } ) {
 
-      let isAttached = true;
-      let controller = null;
+      let domAttached = false;
+      let onDomAvailable = null;
+      createController();
       return {
-         createController,
          domAttachTo,
-         domDetach,
-         destroy() {}
+         domDetach
       };
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-      function createController( config ) {
-         const { onBeforeControllerCreation } = config;
-         const { anchorElement, services, specification } = environment;
-         const module = widgetModules[ specification.name ];
+      function createController() {
+         // backwards compatibility with old-style AMD widgets:
+         const module = widgetModules[ widgetName ].default || widgetModules[ widgetName ];
+         if( !module ) {
+            throw adapterErrors.unknownWidget( { technology, widgetName } );
+         }
+
          const reactServices = {
             axReactRender( componentInstance ) {
-               if( isAttached ) {
+               if( domAttached ) {
                   ReactDom.render( componentInstance, anchorElement );
                }
             }
@@ -66,32 +69,33 @@ export function bootstrap( modules ) {
          const injections = ( module.injections || [] ).map( injection => {
             const value = reactServices[ injection ] || services[ injection ];
             if( value === undefined ) {
-               throw new Error(
-                  `Trying to inject unknown service "${injection}" into widget "${specification.name}".`
-               );
+               throw adapterErrors.unknownInjection( { technology, injection, widgetName } );
+            }
+            if( injection === 'axReactRender' && activitySet[ widgetName ] ) {
+               throw adapterErrors.activityAccessingDom( { technology, injection, widgetName } );
             }
             injectionsByName[ injection ] = value;
             return value;
          } );
-         onBeforeControllerCreation( environment, injectionsByName );
-         controller = module.create( ...injections );
+         onBeforeControllerCreation( injectionsByName );
+         ( { onDomAvailable = noOp } = module.create( ...injections ) || {} );
       }
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
       function domAttachTo( areaElement ) {
-         isAttached = true;
-         areaElement.appendChild( environment.anchorElement );
-         controller.onDomAvailable();
+         domAttached = true;
+         areaElement.appendChild( anchorElement );
+         onDomAvailable();
       }
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
       function domDetach() {
-         isAttached = false;
-         const parent = environment.anchorElement.parentNode;
+         domAttached = false;
+         const parent = anchorElement.parentNode;
          if( parent ) {
-            parent.removeChild( environment.anchorElement );
+            parent.removeChild( anchorElement );
          }
       }
 

@@ -4,8 +4,6 @@
  * http://laxarjs.org/license
  */
 import { bootstrap, technology } from '../laxar-react-adapter';
-import { create as createConfigurationMock } from 'laxar/lib/testing/configuration_mock';
-import { create as createLogMock } from 'laxar/lib/testing/log_mock';
 import * as widgetData from './widget_data';
 
 describe( 'A react widget adapter module', () => {
@@ -24,13 +22,14 @@ describe( 'A react widget adapter module', () => {
 
    describe( 'when bootstrapped with services and modules', () => {
 
+      let artifacts;
+      let services;
       let factory;
 
       beforeEach( () => {
-         factory = bootstrap( [], {
-            configuration: createConfigurationMock(),
-            log: createLogMock()
-         } );
+         artifacts = { widgets: [ widgetData ], controls: [] };
+         services = { widgetLoader: createWidgetLoaderMock() };
+         factory = bootstrap( artifacts, services );
       } );
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -45,75 +44,83 @@ describe( 'A react widget adapter module', () => {
          expect( factory.create ).toEqual( jasmine.any( Function ) );
       } );
 
-      ////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-      it( 'allows to create a widget adapter', () => {
-         expect( factory.create( {
-            specification: widgetData.specification,
-            context: {}
-         }, {} ) )
-            .toEqual( {
-               createController: jasmine.any( Function ),
-               domAttachTo: jasmine.any( Function ),
-               domDetach: jasmine.any( Function ),
-               destroy: jasmine.any( Function )
-            } );
-      } );
-
    } );
 
 } );
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-describe( 'a react widget adapter', () => {
+describe( 'a react widget adapter factory', () => {
 
-   let adapter;
+   let artifacts;
+   let services;
+   let factory;
+
+   let anchorElement;
    let fakeModule;
-   let beforeCreationSpy;
+   let onBeforeControllerCreation;
+   let environment;
+
+   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    beforeEach( () => {
-      beforeCreationSpy = jasmine.createSpy( 'onBeforeControllerCreation' );
-      fakeModule = {
-         create: jasmine.createSpy( 'some-widget.create' ),
-         name: widgetData.specification.name
+      fakeModule = { create: jasmine.createSpy( 'some-widget.create' ) };
+
+      artifacts = {
+         widgets: [
+            { ...widgetData, module: fakeModule }
+         ],
+         controls: []
       };
 
-      const factory = bootstrap( [ fakeModule ], {
-         configuration: createConfigurationMock(),
-         log: createLogMock()
-      } );
+      services = { widgetLoader: createWidgetLoaderMock() };
+      factory = bootstrap( artifacts, services );
+
       const context = {
          eventBus: { fake: 'I am a mock event bus!' },
          features: widgetData.configuration.features
       };
-      adapter = factory.create( {
-         specification: widgetData.specification,
-         context,
+      anchorElement = document.createElement( 'div' );
+      onBeforeControllerCreation = jasmine.createSpy( 'onBeforeControllerCreation' );
+
+      environment = {
+         widgetName: widgetData.descriptor.name,
+         anchorElement,
+         onBeforeControllerCreation,
          services: {
             axContext: context,
             axEventBus: context.eventBus,
             axFeatures: context.features
          }
-      }, {} );
+      };
    } );
 
-   describe( 'asked to instantiate a widget controller', () => {
+   describe( 'asked to instantiate a widget adapter', () => {
 
+      let adapter;
       beforeEach( () => {
-         adapter.createController( { onBeforeControllerCreation: beforeCreationSpy } );
+         adapter = factory.create( environment );
       } );
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-      it( 'creates that controller', () => {
+      it( 'creates the widget controller', () => {
          expect( fakeModule.create ).toHaveBeenCalled();
       } );
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
       it( 'calls the onBeforeControllerCreation spy', () => {
-         expect( beforeCreationSpy ).toHaveBeenCalled();
+         expect( onBeforeControllerCreation ).toHaveBeenCalled();
+      } );
+
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+      it( 'returns an adapter API', () => {
+         expect( adapter ).toEqual( {
+            domAttachTo: jasmine.any( Function ),
+            domDetach: jasmine.any( Function )
+         } );
       } );
 
    } );
@@ -124,7 +131,7 @@ describe( 'a react widget adapter', () => {
 
       beforeEach( () => {
          fakeModule.injections = [ 'axContext', 'axReactRender', 'axFeatures' ];
-         adapter.createController( { onBeforeControllerCreation: beforeCreationSpy } );
+         factory.create( environment );
       } );
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -138,4 +145,15 @@ describe( 'a react widget adapter', () => {
       } );
 
    } );
+
 } );
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function createWidgetLoaderMock() {
+   const artifactErrors = {};
+   [ 'unknownWidget', 'unknownInjection', 'activityAccessingDom' ].forEach( method => {
+      jasmine.createSpy( method ).and.returnValue( new Error() );
+   } );
+   return { artifactErrors };
+}
