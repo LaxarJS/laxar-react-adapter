@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/LaxarJS/laxar-angular-adapter.git"
+    "url": "git+https://github.com/LaxarJS/laxar-react-adapter.git"
   },
   "peerDependencies": {
     "laxar": "^2.0.0-alpha.9",
@@ -21,18 +21,17 @@
   },
   "keywords": [
     "LaxarJS",
-    "AngularJS",
+    "React",
     "Widget",
     "Control"
   ],
   "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/LaxarJS/laxar-angular-adapter/issues"
+    "url": "https://github.com/LaxarJS/laxar-react-adapter/issues"
   },
-  "homepage": "https://github.com/LaxarJS/laxar-angular-adapter#readme",
+  "homepage": "https://github.com/LaxarJS/laxar-react-adapter#readme",
   "devDependencies": {
-    "angular-mocks": "^1.5.7",
     "babel-core": "^6.10.4",
     "babel-loader": "^6.2.4",
     "babel-preset-es2015": "^6.9.0",
