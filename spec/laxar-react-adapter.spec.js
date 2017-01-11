@@ -28,14 +28,8 @@ describe( 'A react widget adapter module', () => {
 
       beforeEach( () => {
          artifacts = { widgets: [ widgetData ], controls: [] };
-         services = { widgetLoader: createWidgetLoaderMock() };
+         services = { adapterUtilities: createAdapterUtilitiesMock() };
          factory = bootstrap( artifacts, services );
-      } );
-
-      ////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-      it( 'produces a factory-object which is tagged with the technology "react"', () => {
-         expect( factory.technology ).toEqual( 'react' );
       } );
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -73,7 +67,7 @@ describe( 'a react widget adapter factory', () => {
          controls: []
       };
 
-      services = { widgetLoader: createWidgetLoaderMock() };
+      services = { adapterUtilities: createAdapterUtilitiesMock() };
       factory = bootstrap( artifacts, services );
 
       const context = {
@@ -150,10 +144,10 @@ describe( 'a react widget adapter factory', () => {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function createWidgetLoaderMock() {
-   const artifactErrors = {};
+function createAdapterUtilitiesMock() {
+   const utilities = {};
    [ 'unknownWidget', 'unknownInjection', 'activityAccessingDom' ].forEach( method => {
-      jasmine.createSpy( method ).and.returnValue( new Error() );
+      utilities[ method ] = jasmine.createSpy( method ).and.returnValue( new Error() );
    } );
-   return { artifactErrors };
+   return utilities;
 }

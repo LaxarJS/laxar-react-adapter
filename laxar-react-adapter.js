@@ -19,9 +19,8 @@ export const technology = 'react';
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-export function bootstrap( { widgets }, { widgetLoader } ) {
+export function bootstrap( { widgets }, { adapterUtilities } ) {
 
-   const { adapterErrors } = widgetLoader;
    const widgetModules = {};
    const activitySet = {};
    widgets.forEach( ({ descriptor, module }) => {
@@ -32,8 +31,7 @@ export function bootstrap( { widgets }, { widgetLoader } ) {
    } );
 
    return {
-      create,
-      technology
+      create
    };
 
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -54,7 +52,7 @@ export function bootstrap( { widgets }, { widgetLoader } ) {
          // backwards compatibility with old-style AMD widgets:
          const module = widgetModules[ widgetName ].default || widgetModules[ widgetName ];
          if( !module ) {
-            throw adapterErrors.unknownWidget( { technology, widgetName } );
+            throw adapterUtilities.unknownWidget( { technology, widgetName } );
          }
 
          const reactServices = {
@@ -69,10 +67,10 @@ export function bootstrap( { widgets }, { widgetLoader } ) {
          const injections = ( module.injections || [] ).map( injection => {
             const value = reactServices[ injection ] || services[ injection ];
             if( value === undefined ) {
-               throw adapterErrors.unknownInjection( { technology, injection, widgetName } );
+               throw adapterUtilities.unknownInjection( { technology, injection, widgetName } );
             }
             if( injection === 'axReactRender' && activitySet[ widgetName ] ) {
-               throw adapterErrors.activityAccessingDom( { technology, injection, widgetName } );
+               throw adapterUtilities.activityAccessingDom( { technology, injection, widgetName } );
             }
             injectionsByName[ injection ] = value;
             return value;
