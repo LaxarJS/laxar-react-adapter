@@ -2,6 +2,9 @@
 
 ## Last Changes
 
+
+## v2.0.0-alpha.0
+
 - [#17](https://github.com/LaxarJS/laxar-react-adapter/issues/17): adapted to latest laxar changes (laxar#396, laxar#397)
 - [#16](https://github.com/LaxarJS/laxar-react-adapter/issues/16): fixed bad copy/paste (package.json)
 - [#15](https://github.com/LaxarJS/laxar-react-adapter/issues/15): adjusted to adapter API changes (laxar#358)
