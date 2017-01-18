@@ -5,7 +5,7 @@
  */
 /* eslint-env node */
 
-const webpackConfig = Object.assign( {}, require('./webpack.base.config' ) );
+const webpackConfig = Object.assign( {}, require('./webpack.config' ) );
 delete webpackConfig.entry;
 webpackConfig.devtool = 'inline-source-map';
 
@@ -18,10 +18,10 @@ module.exports = function(config) {
       frameworks: [ 'jasmine' ],
       files: [
          require.resolve( 'laxar/dist/polyfills' ),
-         '**/spec/spec-runner.js'
+         'spec/spec-runner.js'
       ],
       preprocessors: {
-         '**/spec/spec-runner.js': [ 'webpack', 'sourcemap' ]
+         'spec/spec-runner.js': [ 'webpack', 'sourcemap' ]
       },
       webpack: webpackConfig,
 

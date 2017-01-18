@@ -9,19 +9,13 @@ Note: these instructions are for LaxarJS v2, which is still in early alpha stage
 Use laxar-react-adapter v0.x for projects using LaxarJS v1.
 
 ```console
-bower install --save laxar-react-adapter
-```
-
-or
-
-```console
 npm install --save laxar-react-adapter
 ```
 
 This will automatically install React if not already installed.
 Load the react adapter module (`laxar-react-adapter.js`) into your project and pass it to `laxar.bootstrap`.
 
-Make sure to have the following mappings in your module loader configuration (e.g. `resolve.alias` for webpack, `path` for RequireJS):
+Make sure that your loader is able to resolve the adapter as specified by the package.json (e.g. `resolve` configuration for webpack, `path` for RequireJS):
 
 ```js
 'laxar-react-adapter': 'laxar-react-adapter/laxar-react-adapter',
@@ -140,3 +134,31 @@ define( [
    } );
 } );
 ```
+
+
+
+### Building the adapter from source
+
+Instead of using a pre-compiled library within a project, you can also clone this repository:
+
+```sh
+git clone https://github.com/LaxarJS/laxar-react-adapter.git
+cd laxar-react-adapter
+npm install
+```
+
+To see changes in your application, either configure your project to work with the sources (e.g. by using webpack), or rebuild the webpack bundles by running `npm run dist`.
+
+To run the automated karma tests:
+
+```sh
+npm test
+```
+
+To generate HTML spec runners for opening in your web browser, so that you can e.g. use the browser's developer tools:
+
+```sh
+npm run browser-spec
+```
+
+Now you can select a spec-runner by browsing to http://localhost:8084/spec-output/.
