@@ -136,7 +136,6 @@ define( [
 ```
 
 
-
 ### Building the adapter from source
 
 Instead of using a pre-compiled library within a project, you can also clone this repository:

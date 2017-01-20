@@ -2,7 +2,7 @@
 
 ## Last Changes
 
-- [#18](https://github.com/LaxarJS/laxar-patterns/issues/18): project: updated dev-dependencies, upgraded to webpack 2
+- [#18](https://github.com/LaxarJS/laxar-react-adapter/issues/18): project: updated dev-dependencies, upgraded to webpack 2
 
 
 ## v2.0.0-alpha.0
