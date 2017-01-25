@@ -36,7 +36,7 @@ export function bootstrap( { widgets }, { adapterUtilities } ) {
 
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-   function create( { widgetName, anchorElement, services, onBeforeControllerCreation } ) {
+   function create( { widgetName, anchorElement, services, provideServices } ) {
 
       let domAttached = false;
       let onDomAvailable = null;
@@ -75,7 +75,7 @@ export function bootstrap( { widgets }, { adapterUtilities } ) {
             injectionsByName[ injection ] = value;
             return value;
          } );
-         onBeforeControllerCreation( injectionsByName );
+         provideServices( injectionsByName );
          ( { onDomAvailable = noOp } = module.create( ...injections ) || {} );
       }
 

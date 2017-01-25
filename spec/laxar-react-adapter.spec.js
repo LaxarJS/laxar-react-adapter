@@ -52,7 +52,7 @@ describe( 'a react widget adapter factory', () => {
 
    let anchorElement;
    let fakeModule;
-   let onBeforeControllerCreation;
+   let provideServices;
    let environment;
 
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -75,12 +75,12 @@ describe( 'a react widget adapter factory', () => {
          features: widgetData.configuration.features
       };
       anchorElement = document.createElement( 'div' );
-      onBeforeControllerCreation = jasmine.createSpy( 'onBeforeControllerCreation' );
+      provideServices = jasmine.createSpy( 'provideServices' );
 
       environment = {
          widgetName: widgetData.descriptor.name,
          anchorElement,
-         onBeforeControllerCreation,
+         provideServices,
          services: {
             axContext: context,
             axEventBus: context.eventBus,
@@ -104,8 +104,8 @@ describe( 'a react widget adapter factory', () => {
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-      it( 'calls the onBeforeControllerCreation spy', () => {
-         expect( onBeforeControllerCreation ).toHaveBeenCalled();
+      it( 'calls provideServices', () => {
+         expect( provideServices ).toHaveBeenCalled();
       } );
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
