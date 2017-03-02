@@ -15,7 +15,8 @@ const isBrowserSpec = nodeEnv === 'browser-spec';
 const name = require( './package.json' ).name;
 const externals = {
    'laxar': 'laxar',
-   'react-dom': 'react-dom'
+   'react-dom': 'react-dom',
+   'react': 'react'
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -24,11 +25,14 @@ const baseConfig = {
    module: {
       rules: [
          {
-            test: /\.js$/,
+            test: /\.(js|jsx)$/,
             exclude: /(node_modules)\/(?!laxar.*)/,
-            loader: 'babel-loader'
+            use: 'babel-loader'
          }
       ]
+   },
+   resolve: {
+      extensions: [ '.js', '.jsx' ]
    }
 };
 
