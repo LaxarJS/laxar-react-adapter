@@ -1,5 +1,5 @@
 /**
- * Copyright 2016 aixigo AG
+ * Copyright 2017 aixigo AG
  * Released under the MIT license.
  * http://laxarjs.org/license
  */
@@ -135,6 +135,28 @@ describe( 'a react widget adapter factory', () => {
             { eventBus: jasmine.any( Object ), features: jasmine.any( Object ) },
             jasmine.any( Function ),
             { myFeature: {} }
+         );
+      } );
+
+   } );
+
+
+   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+   describe( 'asked to instantiate a widget controller with injection axWidgetArea', () => {
+
+      beforeEach( () => {
+         fakeModule.injections = [ 'axContext', 'axReactRender', 'axWidgetArea' ];
+         factory.create( environment );
+      } );
+
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+      it( 'creates that controller with injection axWidgetArea', () => {
+         expect( fakeModule.create ).toHaveBeenCalledWith(
+            { eventBus: jasmine.any( Object ), features: jasmine.any( Object ) },
+            jasmine.any( Function ),
+            jasmine.any( Function )
          );
       } );
 

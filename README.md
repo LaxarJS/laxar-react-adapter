@@ -1,4 +1,4 @@
-# LaxarJS React Adapter
+# LaxarJS React Adapter [![Build Status](https://travis-ci.org/LaxarJS/laxar.svg?branch=master)](https://travis-ci.org/LaxarJS/laxar-react-adapter) 
 
 > Write LaxarJS widgets and controls using React
 
@@ -23,7 +23,7 @@ Make sure that your loader is able to resolve the adapter as specified by the pa
 'react-dom': 'react/react-dom',
 ```
 
-The adapter itself relies on `react-dom`, and your widgets will need to find `react`.
+The adapter itself relies on `react-dom` ans `react`, and your widgets will need to find `react`.
 Now you can pass the adapter module using the second argument to `laxar.bootstrap`:
 
 ```js

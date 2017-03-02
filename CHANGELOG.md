@@ -2,6 +2,7 @@
 
 ## Last Changes
 
+- [#19](https://github.com/LaxarJS/laxar-react-adapter/issues/19): added widget area component 
 - [#20](https://github.com/LaxarJS/laxar-react-adapter/issues/20): adapted to laxar API change (LaxarJS/laxar#413)
 - [#18](https://github.com/LaxarJS/laxar-react-adapter/issues/18): project: updated dev-dependencies, upgraded to webpack 2
 

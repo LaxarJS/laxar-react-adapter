@@ -1,5 +1,5 @@
 /**
- * Copyright 2016 aixigo AG
+ * Copyright 2017 aixigo AG
  * Released under the MIT license.
  * http://laxarjs.org/license
  */
@@ -12,6 +12,7 @@
  */
 
 import * as ReactDom from 'react-dom';
+import AxWidgetArea from './lib/components/widget-area';
 
 const noOp = () => {};
 
@@ -60,7 +61,8 @@ export function bootstrap( { widgets }, { adapterUtilities } ) {
                if( domAttached ) {
                   ReactDom.render( componentInstance, anchorElement );
                }
-            }
+            },
+            axWidgetArea: AxWidgetArea
          };
 
          const injectionsByName = {};
