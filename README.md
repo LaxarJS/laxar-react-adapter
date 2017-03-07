@@ -2,36 +2,81 @@
 
 > Write LaxarJS widgets and controls using React
 
+<span class="laxar-developer-view">This is the developer version. Take a look at our <a href="http://www.laxarjs.org/docs/laxar-react-adapter">documentation site</a> with the released version.</span>
+  
 
 ## Installation
 
 Note: these instructions are for LaxarJS v2, which is still in early alpha stage.
 Use laxar-react-adapter v0.x for projects using LaxarJS v1.
 
-```console
+```sh
 npm install --save laxar-react-adapter
 ```
 
 This will automatically install React if not already installed.
-Load the react adapter module (`laxar-react-adapter.js`) into your project and pass it to `laxar.bootstrap`.
 
-Make sure that your loader is able to resolve the adapter as specified by the package.json (e.g. `resolve` configuration for webpack, `path` for RequireJS):
-
-```js
-'laxar-react-adapter': 'laxar-react-adapter/laxar-react-adapter',
-'react': 'react/react',
-'react-dom': 'react/react-dom',
-```
-
-The adapter itself relies on `react-dom` ans `react`, and your widgets will need to find `react`.
-Now you can pass the adapter module using the second argument to `laxar.bootstrap`:
+Load the React adapter module (`laxar-react-adapter.js`) into your project and pass it to `laxar.bootstrap`.
 
 ```js
 import { bootstrap } from 'laxar';
-bootstrap( /* applicationModules */, [ reactAdapter ] );
+import * as reactAdapter from 'laxar-react-adapter';
+
+bootstrap( document.querySelector( '[data-ax-page]' ), {
+   widgetAdapters: [ reactAdapter /* possibly more adapters */ ],
+   configuration: { ... },
+   artifacts: { ... }
+} );
 ```
 
 If you already have other custom adapters in your project, simply add the React adapter to the existing list.
+
+
+### Use JSX and ES6 with Webpack
+
+If you use webpack and you want to develop widgets with JSX and ES6 there are some things to do.
+
+First install the `babel-loader` for webpack.
+```sh
+npm install --save-dev babel-loader babel-core babel-preset-es2015 webpack 
+```
+
+
+Below is a very simple example, showing only the modified parts:
+```js
+config = {
+
+   resolve: {
+      // Here we add support for JSX file extension
+      extensions: [ '.js', '.jsx' ]
+   },
+
+   module: {
+      rules: [
+         // And here we add the loader rule for the extension
+         {
+                     test: /\.(js|jsx)$/,
+                     exclude: /(node_modules)/,
+                     use: 'babel-loader'
+                  }
+      ]
+   }
+};
+```
+
+Finally include support for JSX in your `.babelrc`:
+
+```json
+{
+   "presets": [ "es2015" ],
+   "plugins": [      
+      "transform-react-jsx"
+   ],
+   "retainLines": true
+}
+```
+
+That's it.
 
 
 ## Usage
@@ -51,7 +96,6 @@ For example `myNewWidget.jsx`:
 
 ```javascript
 import React from 'react';
-import ax from 'laxar';
 
 const injections = [ 'axContext', 'axReactRender' ];
 
@@ -66,8 +110,10 @@ function create( context, reactRender ) {
    function render() {
       reactRender( <div></div> );
    }
-};
+}
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+   
 export default {
    name: 'myNewWidget',
    injections: injections,
@@ -75,7 +121,10 @@ export default {
 };
 ```
 
-The controller in this file injects the `axContext` which is a complete object containing all configuration and API specifically available to this widget instance. The injected `axReactRender` is provided by the react adapter. This injected function is a no-op as long as the widget is invisible (e.g. in a background-tab, or within a closed popup). As soon as the widget has been attached to the page DOM, `axReactRender` goes through to `React.render`.
+The controller in this file injects the `axContext` which is a complete object containing all configuration and API specifically available to this widget instance.
+The injected `axReactRender` is provided by the React adapter.
+This injected function is a no-op as long as the widget is invisible (e.g. in a background-tab, or within a closed popup).
+As soon as the widget has been attached to the page DOM, `axReactRender` goes through to `React.render`.
 
 Read the LaxarJS documentation for more about [writing widget controllers](https://github.com/LaxarJS/laxar/blob/master/docs/manuals/writing_widget_controllers.md) and the available injections.
 
@@ -92,7 +141,9 @@ import React from 'react';
 
 const MyReactControl = React.createClass({
 render() {
-      return <div className='my-new-control'></div>;
+      return (
+         <div className='my-new-control'></div>
+      );
    }
 } );
 
@@ -106,32 +157,32 @@ Read the LaxarJS documentation for more about [providing controls](https://githu
 
 ### Testing with LaxarJS Mocks
 
-Starting with [laxar-mocks](https://github.com/LaxarJS/laxar-mocks) v0.5.0, you can pass custom adapters when creating the testbed-setup function.
+Starting with [laxar-mocks](https://github.com/LaxarJS/laxar-mocks) v2.0.0, you can easily create tests with the `setupForWidget` function.
 Simply write your specs like this:
 
-
 ```js
-define( [
-   'json!../widget.json',
-   'laxar-react-adapter',
-   'laxar-mocks'
-], function( descriptor, axReactAdapter, axMocks ) {
-   'use strict';
 
-   describe( 'The my-counter-widget', function() {
+import * as axMocks from 'laxar-mocks';
 
-      beforeEach( axMocks.createSetupForWidget( descriptor, {
-         // register the adapter:
-         adapter: axReactAdapter,
-         // with React JSX, usually we will not use an HTML template:
-         knownMissingResources: [ 'default.theme/my-counter-widget.html' ]
-      } ) );
+describe( 'The my-counter-widget', () => {
+   
+   beforeEach( axMocks.setupForWidget() );
+   
+   beforeEach( () => {
+         axMocks.widget.configure( {
+            feature: 'configuration'
+         } );
+      } );
+   
+   beforeEach( axMocks.widget.load );
 
-      // ... tests ...
-
-      afterEach( axMocks.tearDown );
-
+   beforeEach( () => {
+      widgetDom = axMocks.widget.render();
    } );
+
+   // ... tests ...
+   
+   afterEach( axMocks.tearDown );
 } );
 ```
 
