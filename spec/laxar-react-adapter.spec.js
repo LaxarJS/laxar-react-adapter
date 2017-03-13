@@ -3,7 +3,7 @@
  * Released under the MIT license.
  * http://laxarjs.org/license
  */
-import { bootstrap, technology } from '../laxar-react-adapter';
+import { AxWidgetArea, bootstrap, technology } from '../laxar-react-adapter';
 import * as widgetData from './widget_data';
 
 describe( 'A react widget adapter module', () => {
@@ -16,6 +16,12 @@ describe( 'A react widget adapter module', () => {
 
    it( 'provides a `bootstrap` method', () => {
       expect( bootstrap ).toEqual( jasmine.any( Function ) );
+   } );
+
+   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+   it( 'provides a `AxWidgetArea` component', () => {
+      expect( AxWidgetArea ).toEqual( jasmine.any( Function ) );
    } );
 
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -135,28 +141,6 @@ describe( 'a react widget adapter factory', () => {
             { eventBus: jasmine.any( Object ), features: jasmine.any( Object ) },
             jasmine.any( Function ),
             { myFeature: {} }
-         );
-      } );
-
-   } );
-
-
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-   describe( 'asked to instantiate a widget controller with injection axWidgetArea', () => {
-
-      beforeEach( () => {
-         fakeModule.injections = [ 'axContext', 'axReactRender', 'axWidgetArea' ];
-         factory.create( environment );
-      } );
-
-      ////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-      it( 'creates that controller with injection axWidgetArea', () => {
-         expect( fakeModule.create ).toHaveBeenCalledWith(
-            { eventBus: jasmine.any( Object ), features: jasmine.any( Object ) },
-            jasmine.any( Function ),
-            jasmine.any( Function )
          );
       } );
 

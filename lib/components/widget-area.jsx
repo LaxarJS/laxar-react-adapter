@@ -8,19 +8,19 @@ import React from 'react';
 /**
  * This react component renders a laxar widget area.
  *
- * @param {String} areaName
- *    the name of the widget area
- * @param {Object} axAreaHelper
- *    this component requires the axAreaHelper and expects it as an attribute
- * @param {String} axVisibility
- *    this component requires the axVisibility and expects it as an attribute
- * @param {String} cssclassName
- *    a string with css class names which will redirect to reacts className attribute
- * @param {Object} visible
- *    true if the widget area should be visible
+ *
+ * areaName {String}: the name of the widget area
+ *
+ * axAreaHelper {Object}: this component requires the axAreaHelper and expects it as an attribute
+ *
+ * axVisibility {String}: this component requires the axVisibility and expects it as an attribute
+ *
+ * cssClassName {String}: a string with css class names which will redirect to Reacts className attribute
+ *
+ * visible {Boolean}: true if the widget area should be visible
  */
 
-export default class AxWidgetArea extends React.Component {
+export class AxWidgetArea extends React.Component {
 
    constructor( props ) {
       super( props );
@@ -49,11 +49,18 @@ export default class AxWidgetArea extends React.Component {
       }
 
       return (
-         <div data-ax-widget-area={ this.props.areaName }
-              style={ divStyle }
-              className={ this.props.cssClassName }
+         <div style={ divStyle }
+              className={ this.props.cssClassName || '' }
               ref={ this.register }
          />
       );
    }
 }
+
+AxWidgetArea.propTypes = {
+   areaName: React.PropTypes.string.isRequired,
+   axAreaHelper: React.PropTypes.object.isRequired,
+   axVisibility: React.PropTypes.object.isRequired,
+   cssClassName: React.PropTypes.string,
+   visible: React.PropTypes.bool.isRequired
+};

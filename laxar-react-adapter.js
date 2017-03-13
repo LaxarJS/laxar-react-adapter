@@ -12,7 +12,7 @@
  */
 
 import * as ReactDom from 'react-dom';
-import AxWidgetArea from './lib/components/widget-area';
+export { AxWidgetArea } from './lib/components/widget-area';
 
 const noOp = () => {};
 
@@ -61,8 +61,7 @@ export function bootstrap( { widgets }, { adapterUtilities } ) {
                if( domAttached ) {
                   ReactDom.render( componentInstance, anchorElement );
                }
-            },
-            axWidgetArea: AxWidgetArea
+            }
          };
 
          const injectionsByName = {};
