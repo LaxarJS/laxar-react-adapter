@@ -2,6 +2,8 @@
 
 ## Last Changes
 
+- [#22](https://github.com/LaxarJS/laxar-react-adapter/issues/22): fixed missing devDependencies in package.json
+
 
 ## v2.0.0-alpha.1
 
