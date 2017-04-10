@@ -11,95 +11,84 @@ Note: these instructions are for LaxarJS v2, which is still in alpha stage.
 Use laxar-react-adapter v0.x for projects using LaxarJS v1.
 
 ```sh
+# required:
 npm install --save laxar-react-adapter
+# recommended, for eslint/babel support:
+npm install --save-dev babel-plugin-transform-react-jsx
 ```
 
-This will automatically install React if not already installed.
+This will automatically add React if not already installed.
+These instructions assume that babel is already configured with [ES2015](https://babeljs.io/learn-es2015/) support, e.g. by using the [LaxarJS Yeoman generator](https://laxarjs.org/laxar/).
 
-Load the React adapter module (`laxar-react-adapter.js`) into your project and pass it to `laxar.bootstrap`.
+Load the React adapter module (`laxar-react-adapter`) into your project and pass it to LaxarJS `create`:
 
 ```js
-import { bootstrap } from 'laxar';
-import * as reactAdapter from 'laxar-react-adapter';
-
-bootstrap( document.querySelector( '[data-ax-page]' ), {
-   widgetAdapters: [ reactAdapter /* possibly more adapters */ ],
-   configuration: { ... },
-   artifacts: { ... }
-} );
-```
-
-If you already have other custom adapters in your project, simply add the React adapter to the existing list.
-
-
-### Use JSX and ES6 with Webpack
-
-If you use webpack and you want to develop widgets with JSX and ES6 there are some things to do.
-
-First install the `babel-loader` for webpack.
-```sh
-npm install --save-dev babel-loader babel-core babel-preset-es2015 webpack
+import { create } from 'laxar';
+create(
+   [ require( 'laxar-react-adapter' ) /* , ... more adapters ... */ ],
+   require( 'laxar-loader/artifacts?flow=main' ),
+   {}
+).flow( /* ... name, element ... */ ).bootstrap();
 ```
 
 
-Below is a very simple example, showing only the modified parts:
+### Webpack Configuration
+
+If you did not use the Yeoman generator to preconfigure webpack for React, the loader configuration (usually `webpack.config.js`) will need to be changed.
+For webpack, to resolve JSX files and to process them using babel:
+
 ```js
-config = {
-
    resolve: {
-      // Here we add support for JSX file extension
       extensions: [ '.js', '.jsx' ]
    },
 
    module: {
       rules: [
-         // And here we add the loader rule for the extension
          {
-            test: /\.(js|jsx)$/,
-            exclude: /(node_modules)/,
+            test: /\.jsx?$/,
+            exclude: path.resolve( __dirname, './node_modules' );
             use: 'babel-loader'
          }
       ]
    }
-};
 ```
 
 Finally include support for JSX in your `.babelrc`:
 
-```json
+```js
 {
-   "presets": [ "es2015" ],
+   // "presets": [ ... ],
+   // ...,
    "plugins": [
+      // "transform-object-rest-spread", ...
       "transform-react-jsx"
-   ],
-   "retainLines": true
+   ]
 }
 ```
 
+For eslint support, check out the [eslint-plugin-react](https://www.npmjs.com/package/eslint-plugin-react) module.
 That's it.
 
 
 ## Usage
 
 With the adapter in place, you can now write widgets and controls using React.
-The LaxarJS Yeoman generator can create simple widgets and controls with the integration technology _"react"_.
-Continue reading for details.
+The LaxarJS Yeoman generator can create simple widgets and controls with the integration technology `"react"`.
 
 
 ### Creating a React Widget
 
-You can use the LaxarJS generator for Yeoman to create a React widget.
-by selecting _"react"_ as _integration technology_.
-The new widget has a JSX file with a simple widget controller.
+You can use the LaxarJS generator for Yeoman to create a React widget by selecting `"react"` as the _integration technology_.
+The new widget will be created with a JSX file containing a basic widget controller.
 
-For example `myNewWidget.jsx`:
+For example `my-new-widget.jsx`:
 
 ```javascript
 import React from 'react';
 
-const injections = [ 'axContext', 'axReactRender' ];
+export const injections = [ 'axContext', 'axReactRender' ];
 
-function create( context, reactRender ) {
+function function create( context, reactRender ) {
 
    return {
       onDomAvailable: render
@@ -112,13 +101,6 @@ function create( context, reactRender ) {
    }
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-export default {
-   name: 'myNewWidget',
-   injections: injections,
-   create: create
-};
 ```
 
 The controller in this file injects the `axContext` which is a complete object containing all configuration and API specifically available to this widget instance.
