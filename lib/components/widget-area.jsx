@@ -54,9 +54,10 @@ export class AxWidgetArea extends React.Component {
       }
 
       return (
-         <div style={ visible === false ? { display: 'none' } : null }
-              className={ this.props.className || null }
-              ref={ this.register }
+         <div
+            style={ visible === false ? { display: 'none' } : null }
+            className={ this.props.className || null }
+            ref={ this.register }
          />
       );
    }

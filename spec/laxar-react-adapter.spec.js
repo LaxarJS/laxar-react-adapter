@@ -66,7 +66,7 @@ describe( 'a react widget adapter factory', () => {
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    beforeEach( () => {
-      fakeCreate = () => {}
+      fakeCreate = () => {};
       fakeModule = {
          create: jasmine.createSpy( 'some-widget.create' )
             .and.callFake( ( ...args ) => fakeCreate( ...args ) )
@@ -176,6 +176,7 @@ describe( 'a react widget adapter factory', () => {
 
          it( 'renders the widget', () => {
             expect( renderSpy ).toHaveBeenCalled();
+            expect( domContainer.innerHTML ).toMatch( '</p>' );
          } );
 
          /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -192,20 +193,13 @@ describe( 'a react widget adapter factory', () => {
 
       describe( 'while not attached to the DOM', () => {
 
-         let domContainer;
-         beforeEach( () => {
-            domContainer = document.createElement( 'DIV' );
-         } );
-
-         /////////////////////////////////////////////////////////////////////////////////////////////////////
-
-         it( 'does not render the widget', () => {
+         it( 'does not try to render the widget', () => {
             expect( renderSpy ).not.toHaveBeenCalled();
          } );
 
          /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-         it( 'drops axReactRender calls', () => {
+         it( 'drops explicit axReactRender calls', () => {
             axReactRender();
             expect( renderSpy ).not.toHaveBeenCalled();
          } );
