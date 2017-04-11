@@ -58,5 +58,8 @@
     "webpack": "^2.3.3",
     "webpack-dev-server": "^2.4.2",
     "webpack-jasmine-html-runner-plugin": "^0.7.0"
+  },
+  "dependencies": {
+    "eslint-plugin-react": "^6.10.3"
   }
 }
