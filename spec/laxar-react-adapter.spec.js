@@ -3,6 +3,7 @@
  * Released under the MIT license.
  * http://laxarjs.org/license
  */
+import React from 'react';
 import { AxWidgetArea, bootstrap, technology } from '../laxar-react-adapter';
 import * as widgetData from './widget_data';
 
@@ -58,13 +59,18 @@ describe( 'a react widget adapter factory', () => {
 
    let anchorElement;
    let fakeModule;
+   let fakeCreate;
    let provideServices;
    let environment;
 
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    beforeEach( () => {
-      fakeModule = { create: jasmine.createSpy( 'some-widget.create' ) };
+      fakeCreate = () => {}
+      fakeModule = {
+         create: jasmine.createSpy( 'some-widget.create' )
+            .and.callFake( ( ...args ) => fakeCreate( ...args ) )
+      };
 
       artifacts = {
          widgets: [
@@ -129,19 +135,81 @@ describe( 'a react widget adapter factory', () => {
 
    describe( 'asked to instantiate a widget controller with injections', () => {
 
+      let adapter;
+      let axReactRender;
+      let renderSpy;
+
       beforeEach( () => {
-         fakeModule.injections = [ 'axContext', 'axReactRender', 'axFeatures' ];
-         factory.create( environment );
+
+         renderSpy = jasmine.createSpy( 'render' ).and.callFake(
+            () => React.createElement( 'p', {}, null )
+         );
+         fakeModule.injections = [ 'axReactRender', 'axContext', 'axFeatures' ];
+         fakeCreate = reactRender => {
+            axReactRender = reactRender;
+            return renderSpy;
+         };
+         adapter = factory.create( environment );
       } );
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
       it( 'creates that controller with injections', () => {
          expect( fakeModule.create ).toHaveBeenCalledWith(
-            { eventBus: jasmine.any( Object ), features: jasmine.any( Object ) },
             jasmine.any( Function ),
+            { eventBus: jasmine.any( Object ), features: jasmine.any( Object ) },
             { myFeature: {} }
          );
+      } );
+
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+      describe( 'when attached to the DOM', () => {
+
+         let domContainer;
+         beforeEach( () => {
+            domContainer = document.createElement( 'DIV' );
+            adapter.domAttachTo( domContainer );
+         } );
+
+         /////////////////////////////////////////////////////////////////////////////////////////////////////
+
+         it( 'renders the widget', () => {
+            expect( renderSpy ).toHaveBeenCalled();
+         } );
+
+         /////////////////////////////////////////////////////////////////////////////////////////////////////
+
+         it( 'implements axReactRender calls', () => {
+            renderSpy.calls.reset();
+            axReactRender();
+            expect( renderSpy ).toHaveBeenCalled();
+         } );
+
+      } );
+
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+      describe( 'while not attached to the DOM', () => {
+
+         let domContainer;
+         beforeEach( () => {
+            domContainer = document.createElement( 'DIV' );
+         } );
+
+         /////////////////////////////////////////////////////////////////////////////////////////////////////
+
+         it( 'does not render the widget', () => {
+            expect( renderSpy ).not.toHaveBeenCalled();
+         } );
+
+         /////////////////////////////////////////////////////////////////////////////////////////////////////
+
+         it( 'drops axReactRender calls', () => {
+            axReactRender();
+            expect( renderSpy ).not.toHaveBeenCalled();
+         } );
+
       } );
 
    } );

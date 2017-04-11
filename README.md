@@ -1,49 +1,44 @@
 # LaxarJS React Adapter [![Build Status](https://travis-ci.org/LaxarJS/laxar.svg?branch=master)](https://travis-ci.org/LaxarJS/laxar-react-adapter)
 
-> Write LaxarJS widgets and controls using React
+> Create LaxarJS widgets and controls using React
 
-<span class="laxar-developer-view">This is the developer version. Take a look at our <a href="http://www.laxarjs.org/docs/laxar-react-adapter">documentation site</a> with the released version.</span>
+<span class="laxar-external-documentation-hint">
+   Take a look at the <a href="http://www.laxarjs.org/docs/laxar-react-adapter">documentation site</a> to browse documentation for all releases of this artifact.
+</span>
 
 
 ## Installation
 
-Note: these instructions are for LaxarJS v2, which is still in alpha stage.
-Use laxar-react-adapter v0.x for projects using LaxarJS v1.
-
-```sh
-# required:
-npm install --save laxar-react-adapter
-# recommended, for eslint/babel support:
-npm install --save-dev babel-plugin-transform-react-jsx
+```console
+npm install --save laxar-react-adapter babel-plugin-transform-react-jsx
 ```
 
 This will automatically add React if not already installed.
-These instructions assume that babel is already configured with [ES2015](https://babeljs.io/learn-es2015/) support, e.g. by using the [LaxarJS Yeoman generator](https://laxarjs.org/laxar/).
+These instructions assume that Babel is already configured with [ES2015](https://babeljs.io/learn-es2015/) support, e.g. by using the [LaxarJS Yeoman generator](https://laxarjs.org/laxar/).
 
 Load the React adapter module (`laxar-react-adapter`) into your project and pass it to LaxarJS `create`:
 
 ```js
 import { create } from 'laxar';
-create(
-   [ require( 'laxar-react-adapter' ) /* , ... more adapters ... */ ],
-   require( 'laxar-loader/artifacts?flow=main' ),
-   {}
-).flow( /* ... name, element ... */ ).bootstrap();
+import * as reactAdapter from 'laxar-react-adapter';
+import artifacts from 'laxar-loader/artifacts?flow=main&theme=cube';
+const configuration = { /* ... */ };
+create( [ reactAdapter /* , ... */ ], artifacts, configuration )
+   .flow( /* ... name, element ... */ )
+   .bootstrap();
 ```
 
 
-### Webpack Configuration
+### webpack Configuration
 
-If you did not use the Yeoman generator to preconfigure webpack for React, the loader configuration (usually `webpack.config.js`) will need to be changed.
-For webpack, to resolve JSX files and to process them using babel:
+If you did not use the Yeoman generator to preconfigure webpack for React, your loader configuration will probably need to be adjusted.
+For webpack to resolve JSX files and to process them using Babel, the configuration (usually `webpack.config.js`) needs to be adjusted:
 
 ```js
-   resolve: {
-      extensions: [ '.js', '.jsx' ]
-   },
-
+   resolve: { extensions: [ '.js', '.jsx' ] },
    module: {
       rules: [
+         // ...,
          {
             test: /\.jsx?$/,
             exclude: path.resolve( __dirname, './node_modules' );
@@ -57,154 +52,175 @@ Finally include support for JSX in your `.babelrc`:
 
 ```js
 {
-   // "presets": [ ... ],
-   // ...,
+   // ...
    "plugins": [
-      // "transform-object-rest-spread", ...
+      // ...,
       "transform-react-jsx"
    ]
 }
 ```
 
-For eslint support, check out the [eslint-plugin-react](https://www.npmjs.com/package/eslint-plugin-react) module.
+For [ESLint](http://eslint.org/) support, check out the [eslint-plugin-react](https://www.npmjs.com/package/eslint-plugin-react) module.
 That's it.
 
 
 ## Usage
 
 With the adapter in place, you can now write widgets and controls using React.
-The LaxarJS Yeoman generator can create simple widgets and controls with the integration technology `"react"`.
+The [LaxarJS Yeoman generator](https://laxarjs.org/docs/generator-laxarjs2-latest/) can create implementation stubs for you, if you specify the integration technology `"react"`.
+When creating widgets _manually_, make sure to set the `"integration.technology"` to `"react"` in the `widget.json`.
 
 
 ### Creating a React Widget
 
-You can use the LaxarJS generator for Yeoman to create a React widget by selecting `"react"` as the _integration technology_.
-The new widget will be created with a JSX file containing a basic widget controller.
+Widgets can be created from a JSX file containing a basic widget controller.
 
 For example `my-new-widget.jsx`:
 
-```javascript
+```js
 import React from 'react';
-
-export const injections = [ 'axContext', 'axReactRender' ];
-
-function function create( context, reactRender ) {
-
-   return {
-      onDomAvailable: render
-   };
-
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-   function render() {
-      reactRender( <div></div> );
-   }
+export const injections = [ 'axFeatures' ];
+export function create( features ) {
+   return () => <div>Hello, world! { features.some.config }</div>;
 }
-
 ```
 
-The controller in this file injects the `axContext` which is a complete object containing all configuration and API specifically available to this widget instance.
-The injected `axReactRender` is provided by the React adapter.
-This injected function is a no-op as long as the widget is invisible (e.g. in a background-tab, or within a closed popup).
-As soon as the widget has been attached to the page DOM, `axReactRender` goes through to `React.render`.
+The controller in this example is _injected_ the `axFeatures` object.
+This object can be used to access the widget instance configuration.
+If a widget does not require any `injections`, the export may be omitted.
 
-Read the LaxarJS documentation for more about [writing widget controllers](https://github.com/LaxarJS/laxar/blob/master/docs/manuals/writing_widget_controllers.md) and the available injections.
+Another injection called `axReactRender` is provided only when using `"react"` as the integration technology, and it can be used to update the widget DOM after a data change:
+
+```js
+import React from 'react';
+export const injections = [ 'axReactRender' ];
+export function create( render ) {
+   let count = 0;
+   setInterval( increment, 1000 );
+   return () => <div>Time of my life: { count }</div>;
+
+   function increment() {
+      ++count;
+      render();
+   }
+}
+```
+
+The render function is a no-op as long as the widget has not been attached to the DOM (e.g. while in a background-tab, or within a closed popup).
+As soon as the widget has been attached to the page DOM, `axReactRender` goes through to `React.render`, with the widget anchor element as a DOM container.
+
+Read the LaxarJS documentation for more about [creating widgets and activities](https://laxarjs.org/docs/laxar-v2-latest/manuals/widgets_and_activities/) and the [available injections](https://laxarjs.org/docs/laxar-v2-latest/manuals/widget_services/).
 
 
 #### Providing a Widget Area to embed other Widgets
 
-LaxarJS widgets can provide widget areas in their own html template.
+LaxarJS widgets can provide widget areas in their own HTML template.
 These areas can then be referenced from within page definitions in order to add widgets to them.
-To create such a widget with React, the component class `AxWidgetArea` is provided by the adapter.
+To create such a widget with React, the component `AxWidgetArea` is provided by the adapter.
 
-The AxWidgetArea excepts some properties:
+An AxWidgetArea instance accepts the following React props:
 
-- areaName {String}: the name of the widget area
-- axAreaHelper {Object}: the LaxarJS service axAreaHelper
-- axVisibility {Object}: the LaxarJS service axVisibility
-- cssClassName {String}: a string with CSS class names which will redirect to Reacts className attribute
-- visible {Boolean}: true if the widget area should be visible
+Provides and manages a LaxarJS widget area
 
-An example how to implement a widget area in a React widget:
+- _name_ (`String`): the local name of the widget area _(required)_.
+  This is the part after the `.` in the page definition. Must be constant
 
-```
+- _axAreaHelper_ (`Object`): the widget injection `axAreaHelper` _(required)_
+
+- _axVisibility_ (`Object`): the widget injection `axVisibility`.
+  This is required for the area visibility to ever be `false`
+
+- _className_ (`String`, `Object`): forwarded to the `className` of the generated container DIV
+
+- _visible_ (`Boolean`): `false` if the widget area should be hidden (default: `true`).
+  The area will be hidden using CSS `display: none`, and will be kept in the DOM
+
+Here is an example of a `"react"` widget providing a widget area "myContent" (accessible in the page as `<widget-id>.myContent`):
+
+```js
+import React from 'react';
 import { AxWidgetArea } from 'laxar-react-adapter';
 
-const injections = [
-   'axReactRender', 'axAreaHelper', 'axVisibility'
-];
-
-function create( reactRender, areaHelper, axVisibility ) {
-
-   return (
-      <AxWidgetArea
-         areaName='myWidgetArea'
-         cssClassName="optionalCssClass"
-         axAreaHelper={ areaHelper }
-         visible=true
-         axVisibility={ axVisibility }
-      />
-   )
+export const injections = [ 'axAreaHelper' ];
+export function create( areaHelper ) {
+   return () => <AxWidgetArea name='myContent' axAreaHelper={ areaHelper } />;
 }
 ```
 
-The React widget must import the `AxWidgetArea` from the *laxar-react-adapter*.
-Then it injects the `axReactRender` and for the widget area the two LaxarJS services `axAreaHelper` and `axVisisbility`.
-In its create function it can then use the `AxWidgetArea` component.
-With the property `visible` the widget can handle if the widget area with its embeded widgets should be visible or hide.
 In this example the widget area is always visible.
+For the visibility to change at runtime, the additional injection `axVisibility` is required:
+
+```js
+import React from 'react';
+import { AxWidgetArea } from 'laxar-react-adapter';
+
+export const injections = [ 'axReactRender', 'axAreaHelper', 'axVisibility' ];
+export function create( reactRender, areaHelper, visibility ) {
+   let showing = true;
+   return () => (
+      <div onClick={ toggleShowing }>
+         <AxWidgetArea
+            name='myContent'
+            visible={ showing }
+            axAreaHelper={ areaHelper }
+            axVisibility={ visibility } />
+      </div>
+   );
+
+   function toggleShowing() {
+      showing = !showing;
+      reactRender();
+   }
+}
+```
 
 
 ### Creating a React Control
 
-A LaxarJS control allows you to encapsulates one or more React components with associated CSS styles, that can be overwritten by themes.
+A _LaxarJS control_ allows you to encapsulates one or more React components with associated CSS styles that can be overwritten by _LaxarJS themes._
 
-React controls are implemented as regular AMD-modules, just like *plain* controls.
-Select `"react"` as the integration technology when you generate the control with the LaxarJS Yeoman generator.
+React controls are implemented as regular JavaScript modules, just like *plain* LaxarJS controls.
+Select `"react"` as the integration technology when you generate the control with the LaxarJS Yeoman generator, or set it as the `"integration.technology"` of the `control.json` descriptor when creating a control manually.
 
-```javascript
+```js
+// my-control-
 import React from 'react';
 
-const MyReactControl = React.createClass({
-render() {
-      return (
-         <div className='my-new-control'></div>
-      );
+class MyReactControl extends React.component {
+   render() {
+      return <div className='my-new-control'></div>;
    }
-} );
+}
 
-export default MyNewControl;
+export default MyReactControl;
 ```
 
-In your new control make sure to export all components that you wish to make available to widgets.
+Widgets can access the control by loading its module, or by requesting it through the [axControls](https://laxarjs.org/docs/laxar-v2-latest/api/runtime.widget_services/#axControls) injection.
+The latter is _recommended_ as it does not depend as much on the project-specific loader configuration.
+For this, widgets need to list their controls in thee `"controls"` section of their descriptor, which also ensures that CSS theming works.
 
-Read the LaxarJS documentation for more about [providing controls](https://github.com/LaxarJS/laxar/blob/master/docs/manuals/providing_controls.md).
+Read the LaxarJS documentation for general information on [providing controls](https://laxarjs.org/docs/laxar-v2-latest/manuals/providing_controls).
 
 
 ### Testing with LaxarJS Mocks
 
-Starting with [laxar-mocks](https://github.com/LaxarJS/laxar-mocks) v2.0.0, you can easily create tests with the `setupForWidget` function.
+Starting with [laxar-mocks](https://laxarjs.org/docs/laxar-mocks-v2-latest/) v2.0.0, you can easily create tests with the `setupForWidget` function.
 Simply write your specs like this:
 
 ```js
-
 import * as axMocks from 'laxar-mocks';
 
 describe( 'The my-counter-widget', () => {
 
    beforeEach( axMocks.setupForWidget() );
-
    beforeEach( () => {
-         axMocks.widget.configure( {
-            feature: 'configuration'
-         } );
-      } );
+      axMocks.widget.configure( { someFeature: 'someConfigValue' } );
+   } );
 
    beforeEach( axMocks.widget.load );
 
-   beforeEach( () => {
-      widgetDom = axMocks.widget.render();
-   } );
+   let widgetDom;
+   beforeEach( () => { widgetDom = axMocks.widget.render(); } );
 
    // ... tests ...
 
@@ -213,7 +229,7 @@ describe( 'The my-counter-widget', () => {
 ```
 
 
-### Building the adapter from source
+### Building the Adapter from Source
 
 Instead of using a pre-compiled library within a project, you can also clone this repository:
 

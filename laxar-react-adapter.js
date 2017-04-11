@@ -38,14 +38,22 @@ export function bootstrap( { widgets }, { adapterUtilities } ) {
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    function create( { widgetName, anchorElement, services, provideServices } ) {
-
       let domAttached = false;
-      let onDomAvailable = null;
+      let render = noOp;
       createController();
       return {
          domAttachTo,
          domDetach
       };
+
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+      function axReactRender() {
+         if( domAttached ) {
+            const reactDom = render();
+            ReactDom.render( reactDom, anchorElement );
+         }
+      }
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -57,11 +65,7 @@ export function bootstrap( { widgets }, { adapterUtilities } ) {
          }
 
          const reactServices = {
-            axReactRender( componentInstance ) {
-               if( domAttached ) {
-                  ReactDom.render( componentInstance, anchorElement );
-               }
-            }
+            axReactRender
          };
 
          const injectionsByName = {};
@@ -77,7 +81,7 @@ export function bootstrap( { widgets }, { adapterUtilities } ) {
             return value;
          } );
          provideServices( injectionsByName );
-         ( { onDomAvailable = noOp } = module.create( ...injections ) || {} );
+         render = module.create( ...injections ) || render;
       }
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -85,7 +89,7 @@ export function bootstrap( { widgets }, { adapterUtilities } ) {
       function domAttachTo( areaElement ) {
          domAttached = true;
          areaElement.appendChild( anchorElement );
-         onDomAvailable();
+         axReactRender();
       }
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
