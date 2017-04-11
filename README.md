@@ -178,11 +178,10 @@ export function create( reactRender, areaHelper, visibility ) {
 
 A _LaxarJS control_ allows you to encapsulates one or more React components with associated CSS styles that can be overwritten by _LaxarJS themes._
 
-React controls are implemented as regular JavaScript modules, just like *plain* LaxarJS controls.
-Select `"react"` as the integration technology when you generate the control with the LaxarJS Yeoman generator, or set it as the `"integration.technology"` of the `control.json` descriptor when creating a control manually.
+React controls are implemented as regular JavaScript modules, just like *plain* LaxarJS controls:
 
 ```js
-// my-control-
+// my-control.jsx
 import React from 'react';
 
 class MyReactControl extends React.component {
@@ -194,9 +193,45 @@ class MyReactControl extends React.component {
 export default MyReactControl;
 ```
 
+Select `"react"` as the integration technology when you generate the control with the LaxarJS Yeoman generator, or set it as the `"integration.technology"` of the `control.json` descriptor when creating a control manually:
+
+```js
+// control.json
+{
+   "name": "my-control",
+   "integration": {
+      "technology": "react"
+   }
+}
+```
+
 Widgets can access the control by loading its module, or by requesting it through the [axControls](https://laxarjs.org/docs/laxar-v2-latest/api/runtime.widget_services/#axControls) injection.
-The latter is _recommended_ as it does not depend as much on the project-specific loader configuration.
-For this, widgets need to list their controls in thee `"controls"` section of their descriptor, which also ensures that CSS theming works.
+The latter is _recommended_ as it does not depend as much on the project-specific loader configuration:
+
+```js
+// my-widget.jsx
+import React from 'react';
+export const injections = [ 'axControls' ];
+export function create( controls ) {
+   const MyReactControl = controls.provide( 'my-react-control' );
+   return () => <div>Hello, world! <MyReactControl /></div>;
+}
+```
+
+For this to work the widget needs to list their controls in the `"controls"` section of the descriptor, which also ensures that CSS theming works:
+
+```js
+// widget.json
+{
+   "name": "my-widget",
+   "integration": {
+      "technology": "react",
+      "type": "widget"
+   },
+   "controls": [ "my-control" ],
+   "features": { /* ... */ }
+}
+```
 
 Read the LaxarJS documentation for general information on [providing controls](https://laxarjs.org/docs/laxar-v2-latest/manuals/providing_controls).
 
