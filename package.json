@@ -5,7 +5,7 @@
   "main": "laxar-react-adapter.js",
   "browser": "dist/laxar-react-adapter.js",
   "scripts": {
-     "prepublish": "npm run dist",
+    "prepublish": "npm run dist",
     "test": "npm run karma && npm run eslint",
     "dist": "webpack -p",
     "start": "webpack && webpack-dev-server --inline",
