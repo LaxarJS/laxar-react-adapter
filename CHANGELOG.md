@@ -2,6 +2,10 @@
 
 ## Last Changes
 
+
+## v2.0.0-beta.0
+
+- [#21](https://github.com/LaxarJS/laxar-react-adapter/issues/21): simplified integration and AxWidgetArea, improved README
 - [#22](https://github.com/LaxarJS/laxar-react-adapter/issues/22): fixed missing devDependencies in package.json
 
 

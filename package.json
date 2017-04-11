@@ -1,6 +1,6 @@
 {
   "name": "laxar-react-adapter",
-  "version": "2.0.0-alpha.1",
+  "version": "2.0.0-beta.0",
   "description": "Write LaxarJS widgets and controls using React",
   "main": "laxar-react-adapter.js",
   "browser": "dist/laxar-react-adapter.js",
