@@ -249,7 +249,7 @@ npm test
 To generate HTML spec runners for opening in your web browser, so that you can e.g. use the browser's developer tools:
 
 ```sh
-npm run browser-spec
+npm  start
 ```
 
-Now you can select a spec-runner by browsing to http://localhost:8084/spec-output/.
+Now you can select a spec-runner by browsing to http://localhost:8080/dist/spec/.
