@@ -2,6 +2,8 @@
 
 ## Last Changes
 
+- [#24](https://github.com/LaxarJS/laxar-react-adapter/issues/24): turned `eslint-plugin-react` into a dev dependency
+
 
 ## v2.0.0-beta.0
 

@@ -41,6 +41,7 @@
     "babel-preset-es2015": "^6.18.0",
     "cross-env": "^3.1.4",
     "eslint": "^3.19.0",
+    "eslint-plugin-react": "^6.10.3",
     "eslint-config-laxarjs": "^0.4.0",
     "jasmine-core": "~2.5.2",
     "karma": "^1.4.0",
@@ -58,8 +59,5 @@
     "webpack": "^2.3.3",
     "webpack-dev-server": "^2.4.2",
     "webpack-jasmine-html-runner-plugin": "^0.7.0"
-  },
-  "dependencies": {
-    "eslint-plugin-react": "^6.10.3"
   }
 }
