@@ -16,8 +16,6 @@ function karmaConfig() {
    return laxarInfrastructure.karma( [ `spec/${pkg.name}.spec.js` ], {
       context: __dirname,
       resolve: webpackBaseConfig.resolve,
-      module: {
-         rules: webpackBaseConfig.module.rules
-      }
+      module: webpackBaseConfig.module
    } );
 }

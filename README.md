@@ -119,8 +119,6 @@ To create such a widget with React, the component `AxWidgetArea` is provided by 
 
 An AxWidgetArea instance accepts the following React props:
 
-Provides and manages a LaxarJS widget area
-
 - _name_ (`String`): the local name of the widget area _(required)_.
   This is the part after the `.` in the page definition. Must be constant
 
