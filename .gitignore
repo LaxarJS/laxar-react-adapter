@@ -1,5 +1,4 @@
 /.idea
-/.grunt
 /dist
 /karma-output
 /node_modules
