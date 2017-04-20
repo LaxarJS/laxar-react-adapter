@@ -2,6 +2,9 @@
 
 ## Last Changes
 
+
+## v2.0.0-rc.0
+
 - [#25](https://github.com/LaxarJS/laxar-react-adapter/issues/25): polish
 
 
