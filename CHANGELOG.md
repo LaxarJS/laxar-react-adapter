@@ -2,6 +2,8 @@
 
 ## Last Changes
 
+- [#26](https://github.com/LaxarJS/laxar-react-adapter/issues/26): fixed dependencies in package.json
+
 
 ## v2.0.0-rc.0
 
