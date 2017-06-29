@@ -10,7 +10,7 @@
 ## Installation
 
 ```console
-npm install --save laxar-react-adapter babel-plugin-transform-react-jsx
+npm install --save laxar-react-adapter babel-plugin-transform-react-jsx babel-plugin-transform-class-properties
 ```
 
 This will automatically add React if not already installed.
@@ -55,6 +55,7 @@ Finally include support for JSX in your `.babelrc`:
    // ...
    "plugins": [
       // ...,
+      "transform-class-properties",
       "transform-react-jsx"
    ]
 }
@@ -73,40 +74,49 @@ When creating widgets _manually_, make sure to set the `"integration.technology"
 
 ### Creating a React Widget
 
-Widgets can be created from a JSX file containing a basic widget controller.
+Widgets can be created from a JSX file containing a basic widget component.
 
 For example `my-new-widget.jsx`:
 
 ```js
 import React from 'react';
-export const injections = [ 'axFeatures' ];
-export function create( features ) {
-   return () => <div>Hello, world! { features.some.config }</div>;
+import { injections } from 'laxar-react-adapter';
+
+export default class MyNewWidget extends React.Component {
+   static [ injections ] = [ 'axFeatures' ];
+   render() {
+      const [ features ] = this.props.injections;
+      return <div>Hello, world! { features.some.config }</div>;
+   }
 }
 ```
 
-The controller in this example is _injected_ the `axFeatures` object.
+The component in this example is _injected_ the `axFeatures` object.
 This object can be used to access the widget instance configuration.
-If a widget does not require any `injections`, the export may be omitted.
+If a widget does not require any `injections`, the static property may be omitted.
 
-Another injection called `axReactRender` is provided only when using `"react"` as the integration technology, and it can be used to update the widget DOM after a data change:
+Another injection called `axReactRender` is provided only when using `"react"` as the integration technology, and it can be used to update the widget DOM after a data change. When using component classes, this is not necessary, as `this.forceUpdate()` can be used instead. The following example uses the `axReactRender` injection in a functional component:
 
 ```js
 import React from 'react';
-export const injections = [ 'axReactRender' ];
-export function create( render ) {
+import { injections } from 'laxar-react-adapter';
+
+MyNewWidget[ injections ] = [ 'axReactRender' ];
+export default function MyNewWidget( props ) {
+   const [ reactRender ] = props.injections;
+
    let count = 0;
-   return () => <div onClick={ increment }>Clicks: { count }</div>;
+   return <div onClick={ increment }>Clicks: { count }</div>;
 
    function increment() {
       ++count;
-      render();
+      reactRender();
    }
 }
 ```
 
 The render function is a no-op as long as the widget has not been attached to the DOM (e.g. while in a background-tab, or within a closed popup).
-As soon as the widget has been attached to the page DOM, `axReactRender` goes through to `React.render`, with the widget anchor element as a DOM container.
+As soon as the widget has been attached to the page DOM, `axReactRender` calls the `forceUpdate()` method of the component.
 
 Read the LaxarJS documentation for more about [creating widgets and activities](https://laxarjs.org/docs/laxar-v2-latest/manuals/widgets_and_activities/) and the [available injections](https://laxarjs.org/docs/laxar-v2-latest/manuals/widget_services/).
 
@@ -136,37 +146,49 @@ Here is an example of a `"react"` widget providing a widget area "myContent" (ac
 
 ```js
 import React from 'react';
-import { AxWidgetArea } from 'laxar-react-adapter';
+import { AxWidgetArea, injections } from 'laxar-react-adapter';
 
-export const injections = [ 'axAreaHelper' ];
-export function create( areaHelper ) {
-   return () => <AxWidgetArea name='myContent' axAreaHelper={ areaHelper } />;
+export default class MyNewWidget extends React.Component {
+   static [ injections ] = [ 'axAreaHelper' ];
+
+   render() {
+      const [ areaHelper ] = this.props.injections;
+      return <AxWidgetArea name='myContent' axAreaHelper={ areaHelper } />;
+   }
 }
 ```
 
 In this example the widget area is always visible.
-For the visibility to change at runtime, the additional injection `axVisibility` is required:
+For the visibility to change at runtime, the additional injection `axVisibility` is required.
+We're using React's `setState` to trigger change detection and automatic re-rending of the component.
 
 ```js
 import React from 'react';
-import { AxWidgetArea } from 'laxar-react-adapter';
+import { AxWidgetArea, injections } from 'laxar-react-adapter';
 
-export const injections = [ 'axReactRender', 'axAreaHelper', 'axVisibility' ];
-export function create( reactRender, areaHelper, visibility ) {
-   let showing = true;
-   return () => (
-      <div onClick={ toggleShowing }>
-         <AxWidgetArea
-            name='myContent'
-            visible={ showing }
-            axAreaHelper={ areaHelper }
-            axVisibility={ visibility } />
-      </div>
-   );
 
-   function toggleShowing() {
-      showing = !showing;
-      reactRender();
+export default class MyNewWidget extends React.Component {
+   static [ injections ] = [ 'axAreaHelper', 'axVisibility' ];
+   constructor( props ) {
+      super( props );
+      this.state = {
+         showing: true
+      }
+   }
+   render() {
+      const [ areaHelper, visibility ] = this.props.injections;
+      const toggleShowing = () => {
+         this.setState(prev => ({ showing: !prev.showing }));
+      };
+      return (
+         <div onClick={ toggleShowing }>
+            <AxWidgetArea
+               name='myContent'
+               visible={ this.state.showing }
+               axAreaHelper={ areaHelper }
+               axVisibility={ visibility } />
+         </div>
+      );
    }
 }
 ```
@@ -179,16 +201,14 @@ A _LaxarJS control_ allows you to encapsulates one or more React components with
 React controls are implemented as regular JavaScript modules, just like *plain* LaxarJS controls:
 
 ```js
-// my-control.jsx
+// my-new-control.jsx
 import React from 'react';
 
-class MyReactControl extends React.component {
+export default class MyNewControl extends React.Component {
    render() {
       return <div className='my-new-control'></div>;
    }
 }
-
-export default MyReactControl;
 ```
 
 Select `"react"` as the integration technology when you generate the control with the LaxarJS Yeoman generator, or set it as the `"integration.technology"` of the `control.json` descriptor when creating a control manually:
@@ -196,7 +216,7 @@ Select `"react"` as the integration technology when you generate the control wit
 ```js
 // control.json
 {
-   "name": "my-control",
+   "name": "my-new-control",
    "integration": {
       "technology": "react"
    }
@@ -207,12 +227,17 @@ Widgets can access the control by loading its module, or by requesting it throug
 The latter is _recommended_ as it does not depend as much on the project-specific loader configuration:
 
 ```js
-// my-widget.jsx
+// my-new-widget.jsx
 import React from 'react';
-export const injections = [ 'axControls' ];
-export function create( controls ) {
-   const MyReactControl = controls.provide( 'my-react-control' );
-   return () => <div>Hello, world! <MyReactControl /></div>;
+import { injections } from 'laxar-react-adapter';
+
+export class MyNewWidget extends React.Component {
+   static [ injections ] = [ 'axControls' ];
+   render() {
+      const [ controls ] = this.props.injections;
+      const MyReactControl = controls.provide( 'my-new-control' );
+      return <div>Hello, world! <MyReactControl /></div>;
+   }
 }
 ```
 
@@ -221,12 +246,12 @@ For this to work the widget needs to list their controls in the `"controls"` sec
 ```js
 // widget.json
 {
-   "name": "my-widget",
+   "name": "my-new-widget",
    "integration": {
       "technology": "react",
       "type": "widget"
    },
-   "controls": [ "my-control" ],
+   "controls": [ "my-new-control" ],
    "features": { /* ... */ }
 }
 ```

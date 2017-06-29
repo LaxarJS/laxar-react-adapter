@@ -11,12 +11,18 @@
  * @module laxar-react-adapter
  */
 
+import React from 'react';
 import * as ReactDom from 'react-dom';
 export { AxWidgetArea } from './lib/components/widget-area';
 
-const noOp = () => {};
+const randomIdentifier = () => (`00${Math.ceil(Math.random() * 255).toString(16)}`).substr(-2);
+const Symbol = window.Symbol || (name => `Symbol(${name}-${randomIdentifier})`);
+
+const injectionsProperty = Symbol('injections');
 
 export const technology = 'react';
+
+export { injectionsProperty as injections };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -38,38 +44,43 @@ export function bootstrap( { widgets }, { adapterUtilities } ) {
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    function create( { widgetName, anchorElement, services, provideServices } ) {
-      let domAttached = false;
-      let render = noOp;
-      createController();
+      const element = createElement();
+
       return {
-         domAttachTo,
-         domDetach
+         domAttachTo( areaElement ) {
+            ReactDom.render( element, anchorElement );
+            areaElement.appendChild( anchorElement );
+         },
+         domDetach() {
+            ReactDom.unmountComponentAtNode( anchorElement );
+         }
       };
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-      function axReactRender() {
-         if( domAttached ) {
-            const reactDom = render();
-            ReactDom.render( reactDom, anchorElement );
-         }
-      }
-
-      ////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-      function createController() {
+      function createElement() {
          // backwards compatibility with old-style AMD widgets:
          const module = widgetModules[ widgetName ].default || widgetModules[ widgetName ];
          if( !module ) {
             throw adapterUtilities.unknownWidget( { technology, widgetName } );
          }
 
+         const Component = module.create ?
+            wrapModule( module ) :
+            module;
+
+         let component;
+
          const reactServices = {
-            axReactRender
+            axReactRender() {
+               if( component ) {
+                  component.forceUpdate();
+               }
+            }
          };
 
          const injectionsByName = {};
-         const injections = ( module.injections || [] ).map( injection => {
+         const injections = ( Component[ injectionsProperty ] || [] ).map( injection => {
             const value = reactServices[ injection ] || services[ injection ];
             if( value === undefined ) {
                throw adapterUtilities.unknownInjection( { technology, injection, widgetName } );
@@ -81,26 +92,32 @@ export function bootstrap( { widgets }, { adapterUtilities } ) {
             return value;
          } );
          provideServices( injectionsByName );
-         render = module.create( ...injections ) || render;
-      }
 
-      ////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-      function domAttachTo( areaElement ) {
-         domAttached = true;
-         areaElement.appendChild( anchorElement );
-         axReactRender();
-      }
-
-      ////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-      function domDetach() {
-         domAttached = false;
-         const parent = anchorElement.parentNode;
-         if( parent ) {
-            parent.removeChild( anchorElement );
+         if( module.create ) {
+            Component.prototype.render = module.create( ...injections ) || (() => null);
          }
+
+         return React.createElement( Component, {
+            injections,
+            ref( c ) {
+               component = c;
+            }
+         }, null );
       }
+
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+      function wrapModule( { name = widgetName, injections = [] } ) {
+         class Component extends React.Component {
+         }
+
+         Component.displayName = name;
+         Component[ injectionsProperty ] = injections;
+
+         return Component;
+      }
+
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
    }
 

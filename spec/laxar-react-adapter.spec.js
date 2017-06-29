@@ -4,7 +4,7 @@
  * http://laxarjs.org/license
  */
 import React from 'react';
-import { AxWidgetArea, bootstrap, technology } from '../laxar-react-adapter';
+import { AxWidgetArea, bootstrap, technology, injections } from '../laxar-react-adapter';
 import * as widgetData from './widget_data';
 
 describe( 'A react widget adapter module', () => {
@@ -23,6 +23,13 @@ describe( 'A react widget adapter module', () => {
 
    it( 'provides a `AxWidgetArea` component', () => {
       expect( AxWidgetArea ).toEqual( jasmine.any( Function ) );
+   } );
+
+   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+   it( 'provides a `injections` identifier', () => {
+      const x = { [ injections ]: 1 };
+      expect( x[ injections ] ).toEqual( 1 );
    } );
 
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -58,150 +65,300 @@ describe( 'a react widget adapter factory', () => {
    let factory;
 
    let anchorElement;
-   let fakeModule;
+   let fakeInitializer;
    let fakeCreate;
+   let fakeModule;
    let provideServices;
    let environment;
 
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-   beforeEach( () => {
-      fakeCreate = () => {};
-      fakeModule = {
-         create: jasmine.createSpy( 'some-widget.create' )
-            .and.callFake( ( ...args ) => fakeCreate( ...args ) )
-      };
-
-      artifacts = {
-         widgets: [
-            { ...widgetData, module: fakeModule }
-         ],
-         controls: []
-      };
-
-      services = { adapterUtilities: createAdapterUtilitiesMock() };
-      factory = bootstrap( artifacts, services );
-
-      const context = {
-         eventBus: { fake: 'I am a mock event bus!' },
-         features: widgetData.configuration.features
-      };
-      anchorElement = document.createElement( 'div' );
-      provideServices = jasmine.createSpy( 'provideServices' );
-
-      environment = {
-         widgetName: widgetData.descriptor.name,
-         anchorElement,
-         provideServices,
-         services: {
-            axContext: context,
-            axEventBus: context.eventBus,
-            axFeatures: context.features
-         }
-      };
-   } );
-
-   describe( 'asked to instantiate a widget adapter', () => {
-
-      let adapter;
+   describe( 'with a widget exporting a React.Component class', () => {
       beforeEach( () => {
-         adapter = factory.create( environment );
+         fakeInitializer = jasmine.createSpy( 'SomeComponent' );
+         fakeModule = function( props ) {
+            React.Component.call( this, props );
+            fakeInitializer.call( this, props );
+         };
+         fakeModule.prototype = new React.Component();
+
+         artifacts = {
+            widgets: [
+               { ...widgetData, module: fakeModule }
+            ],
+            controls: []
+         };
+
+         services = { adapterUtilities: createAdapterUtilitiesMock() };
+         factory = bootstrap( artifacts, services );
+
+         const context = {
+            eventBus: { fake: 'I am a mock event bus!' },
+            features: widgetData.configuration.features
+         };
+         anchorElement = document.createElement( 'div' );
+         provideServices = jasmine.createSpy( 'provideServices' );
+
+         environment = {
+            widgetName: widgetData.descriptor.name,
+            anchorElement,
+            provideServices,
+            services: {
+               axContext: context,
+               axEventBus: context.eventBus,
+               axFeatures: context.features
+            }
+         };
       } );
 
-      ////////////////////////////////////////////////////////////////////////////////////////////////////////
+      describe( 'asked to instantiate a widget adapter', () => {
 
-      it( 'creates the widget controller', () => {
-         expect( fakeModule.create ).toHaveBeenCalled();
-      } );
-
-      ////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-      it( 'calls provideServices', () => {
-         expect( provideServices ).toHaveBeenCalled();
-      } );
-
-      ////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-      it( 'returns an adapter API', () => {
-         expect( adapter ).toEqual( {
-            domAttachTo: jasmine.any( Function ),
-            domDetach: jasmine.any( Function )
+         let adapter;
+         beforeEach( () => {
+            adapter = factory.create( environment );
          } );
+
+         /////////////////////////////////////////////////////////////////////////////////////////////////////
+
+         it( 'calls provideServices', () => {
+            expect( provideServices ).toHaveBeenCalled();
+         } );
+
+         /////////////////////////////////////////////////////////////////////////////////////////////////////
+
+         it( 'returns an adapter API', () => {
+            expect( adapter ).toEqual( {
+               domAttachTo: jasmine.any( Function ),
+               domDetach: jasmine.any( Function )
+            } );
+         } );
+
+      } );
+
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+      describe( 'asked to instantiate a widget component with injections', () => {
+
+         let adapter;
+         let axReactRender;
+         let renderSpy;
+
+         beforeEach( () => {
+
+            renderSpy = jasmine.createSpy( 'render' ).and.callFake(
+               () => React.createElement( 'p', {}, null )
+            );
+            fakeModule[ injections ] = [ 'axReactRender', 'axContext', 'axFeatures' ];
+            fakeModule.prototype.render = renderSpy;
+            fakeInitializer = fakeInitializer
+               .and.callFake( props => {
+                  axReactRender = props.injections[ 0 ];
+               } );
+            adapter = factory.create( environment );
+         } );
+
+         describe( 'when attached to the DOM', () => {
+
+            let domContainer;
+            beforeEach( () => {
+               domContainer = document.createElement( 'DIV' );
+               adapter.domAttachTo( domContainer );
+            } );
+
+            //////////////////////////////////////////////////////////////////////////////////////////////////
+
+            it( 'creates that component with injections', () => {
+               expect( fakeInitializer ).toHaveBeenCalledWith(
+                  jasmine.objectContaining({
+                     injections: [
+                        jasmine.any( Function ),
+                        { eventBus: jasmine.any( Object ), features: jasmine.any( Object ) },
+                        { myFeature: {} }
+                     ]
+                  })
+               );
+            } );
+
+            //////////////////////////////////////////////////////////////////////////////////////////////////
+
+            it( 'renders the widget', () => {
+               expect( renderSpy ).toHaveBeenCalled();
+               expect( domContainer.innerHTML ).toMatch( '</p>' );
+            } );
+
+            //////////////////////////////////////////////////////////////////////////////////////////////////
+
+            it( 'implements axReactRender calls', () => {
+               renderSpy.calls.reset();
+               axReactRender();
+               expect( renderSpy ).toHaveBeenCalled();
+            } );
+
+         } );
+
+         /////////////////////////////////////////////////////////////////////////////////////////////////////
+
+         describe( 'while not attached to the DOM', () => {
+
+            it( 'does not try to render the widget', () => {
+               expect( renderSpy ).not.toHaveBeenCalled();
+            } );
+
+            //////////////////////////////////////////////////////////////////////////////////////////////////
+
+            it( 'drops explicit axReactRender calls', () => {
+               axReactRender();
+               expect( renderSpy ).not.toHaveBeenCalled();
+            } );
+
+         } );
+
       } );
 
    } );
 
    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-   describe( 'asked to instantiate a widget controller with injections', () => {
-
-      let adapter;
-      let axReactRender;
-      let renderSpy;
-
+   describe( 'with a widget exporting a create function', () => {
       beforeEach( () => {
-
-         renderSpy = jasmine.createSpy( 'render' ).and.callFake(
-            () => React.createElement( 'p', {}, null )
-         );
-         fakeModule.injections = [ 'axReactRender', 'axContext', 'axFeatures' ];
-         fakeCreate = reactRender => {
-            axReactRender = reactRender;
-            return renderSpy;
+         fakeCreate = () => {};
+         fakeModule = {
+            create: jasmine.createSpy( 'some-widget.create' )
+               .and.callFake( ( ...args ) => fakeCreate( ...args ) )
          };
-         adapter = factory.create( environment );
+
+         artifacts = {
+            widgets: [
+               { ...widgetData, module: fakeModule }
+            ],
+            controls: []
+         };
+
+         services = { adapterUtilities: createAdapterUtilitiesMock() };
+         factory = bootstrap( artifacts, services );
+
+         const context = {
+            eventBus: { fake: 'I am a mock event bus!' },
+            features: widgetData.configuration.features
+         };
+         anchorElement = document.createElement( 'div' );
+         provideServices = jasmine.createSpy( 'provideServices' );
+
+         environment = {
+            widgetName: widgetData.descriptor.name,
+            anchorElement,
+            provideServices,
+            services: {
+               axContext: context,
+               axEventBus: context.eventBus,
+               axFeatures: context.features
+            }
+         };
       } );
 
-      ////////////////////////////////////////////////////////////////////////////////////////////////////////
+      describe( 'asked to instantiate a widget adapter', () => {
 
-      it( 'creates that controller with injections', () => {
-         expect( fakeModule.create ).toHaveBeenCalledWith(
-            jasmine.any( Function ),
-            { eventBus: jasmine.any( Object ), features: jasmine.any( Object ) },
-            { myFeature: {} }
-         );
-      } );
-
-      ////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-      describe( 'when attached to the DOM', () => {
-
-         let domContainer;
+         let adapter;
          beforeEach( () => {
-            domContainer = document.createElement( 'DIV' );
-            adapter.domAttachTo( domContainer );
+            adapter = factory.create( environment );
          } );
 
          /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-         it( 'renders the widget', () => {
-            expect( renderSpy ).toHaveBeenCalled();
-            expect( domContainer.innerHTML ).toMatch( '</p>' );
+         it( 'creates the widget controller', () => {
+            expect( fakeModule.create ).toHaveBeenCalled();
          } );
 
          /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-         it( 'implements axReactRender calls', () => {
-            renderSpy.calls.reset();
-            axReactRender();
-            expect( renderSpy ).toHaveBeenCalled();
+         it( 'calls provideServices', () => {
+            expect( provideServices ).toHaveBeenCalled();
+         } );
+
+         /////////////////////////////////////////////////////////////////////////////////////////////////////
+
+         it( 'returns an adapter API', () => {
+            expect( adapter ).toEqual( {
+               domAttachTo: jasmine.any( Function ),
+               domDetach: jasmine.any( Function )
+            } );
          } );
 
       } );
 
       ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-      describe( 'while not attached to the DOM', () => {
+      describe( 'asked to instantiate a widget controller with injections', () => {
 
-         it( 'does not try to render the widget', () => {
-            expect( renderSpy ).not.toHaveBeenCalled();
+         let adapter;
+         let axReactRender;
+         let renderSpy;
+
+         beforeEach( () => {
+
+            renderSpy = jasmine.createSpy( 'render' ).and.callFake(
+               () => React.createElement( 'p', {}, null )
+            );
+            fakeModule.injections = [ 'axReactRender', 'axContext', 'axFeatures' ];
+            fakeCreate = reactRender => {
+               axReactRender = reactRender;
+               return renderSpy;
+            };
+            adapter = factory.create( environment );
          } );
 
          /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-         it( 'drops explicit axReactRender calls', () => {
-            axReactRender();
-            expect( renderSpy ).not.toHaveBeenCalled();
+         it( 'creates that controller with injections', () => {
+            expect( fakeModule.create ).toHaveBeenCalledWith(
+               jasmine.any( Function ),
+               { eventBus: jasmine.any( Object ), features: jasmine.any( Object ) },
+               { myFeature: {} }
+            );
+         } );
+
+         /////////////////////////////////////////////////////////////////////////////////////////////////////
+
+         describe( 'when attached to the DOM', () => {
+
+            let domContainer;
+            beforeEach( () => {
+               domContainer = document.createElement( 'DIV' );
+               adapter.domAttachTo( domContainer );
+            } );
+
+            //////////////////////////////////////////////////////////////////////////////////////////////////
+
+            it( 'renders the widget', () => {
+               expect( renderSpy ).toHaveBeenCalled();
+               expect( domContainer.innerHTML ).toMatch( '</p>' );
+            } );
+
+            //////////////////////////////////////////////////////////////////////////////////////////////////
+
+            it( 'implements axReactRender calls', () => {
+               renderSpy.calls.reset();
+               axReactRender();
+               expect( renderSpy ).toHaveBeenCalled();
+            } );
+
+         } );
+
+         /////////////////////////////////////////////////////////////////////////////////////////////////////
+
+         describe( 'while not attached to the DOM', () => {
+
+            it( 'does not try to render the widget', () => {
+               expect( renderSpy ).not.toHaveBeenCalled();
+            } );
+
+            //////////////////////////////////////////////////////////////////////////////////////////////////
+
+            it( 'drops explicit axReactRender calls', () => {
+               axReactRender();
+               expect( renderSpy ).not.toHaveBeenCalled();
+            } );
+
          } );
 
       } );

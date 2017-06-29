@@ -2,6 +2,7 @@
 
 ## Last Changes
 
+- [#27](https://github.com/LaxarJS/laxar-react-adapter/issues/27): widgets can now export `React.Component` classes instead of create functions
 - [#28](https://github.com/LaxarJS/laxar-react-adapter/issues/28): fixed changelog
 
 
