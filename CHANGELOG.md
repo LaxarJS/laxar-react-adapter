@@ -2,6 +2,9 @@
 
 ## Last Changes
 
+
+## v2.0.1
+
 - [#29](https://github.com/LaxarJS/laxar-react-adapter/issues/29): documentation: fixed example use of `axControls`
 
 
