@@ -235,7 +235,7 @@ export class MyNewWidget extends React.Component {
    static [ injections ] = [ 'axControls' ];
    render() {
       const [ controls ] = this.props.injections;
-      const MyReactControl = controls.provide( 'my-new-control' );
+      const { MyReactControl } = controls.provide( 'my-new-control' );
       return <div>Hello, world! <MyReactControl /></div>;
    }
 }
